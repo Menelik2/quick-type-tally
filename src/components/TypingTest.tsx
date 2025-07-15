@@ -19,10 +19,33 @@ export default function TypingTest() {
   const [isComplete, setIsComplete] = useState(false);
   const [wpm, setWpm] = useState(0);
   const [accuracy, setAccuracy] = useState(100);
+  const [timeLimit, setTimeLimit] = useState(60); // 60 seconds by default
+  const [remainingTime, setRemainingTime] = useState(60);
+  const [isTimeUp, setIsTimeUp] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   
   const currentText = SAMPLE_TEXTS[currentTextIndex];
   
+  // Timer countdown effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    
+    if (startTime && !isComplete && !isTimeUp) {
+      interval = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        const timeLeft = Math.max(0, timeLimit - elapsed);
+        setRemainingTime(timeLeft);
+        
+        if (timeLeft === 0) {
+          setIsTimeUp(true);
+          setIsComplete(true);
+        }
+      }, 1000);
+    }
+    
+    return () => clearInterval(interval);
+  }, [startTime, isComplete, isTimeUp, timeLimit]);
+
   // Calculate WPM and accuracy
   useEffect(() => {
     if (!startTime || userInput.length === 0) return;
@@ -43,15 +66,18 @@ export default function TypingTest() {
     const currentAccuracy = userInput.length > 0 ? Math.round((correctChars / userInput.length) * 100) : 100;
     setAccuracy(currentAccuracy);
     
-    // Check if test is complete
-    if (userInput.length === currentText.length) {
+    // Check if test is complete by typing all characters
+    if (userInput.length === currentText.length && !isTimeUp) {
       setIsComplete(true);
     }
-  }, [userInput, startTime, currentText]);
+  }, [userInput, startTime, currentText, isTimeUp]);
   
   // Handle input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
+    
+    // Don't allow typing if time is up
+    if (isTimeUp || isComplete) return;
     
     // Start timer on first character
     if (value.length === 1 && !startTime) {
@@ -64,13 +90,22 @@ export default function TypingTest() {
     }
   };
   
+  // Change time limit
+  const changeTimeLimit = (newLimit: number) => {
+    setTimeLimit(newLimit);
+    setRemainingTime(newLimit);
+    resetTest();
+  };
+  
   // Reset the test
   const resetTest = () => {
     setUserInput('');
     setStartTime(null);
     setIsComplete(false);
+    setIsTimeUp(false);
     setWpm(0);
     setAccuracy(100);
+    setRemainingTime(timeLimit);
     setCurrentTextIndex(Math.floor(Math.random() * SAMPLE_TEXTS.length));
     inputRef.current?.focus();
   };
@@ -125,6 +160,21 @@ export default function TypingTest() {
               Challenge yourself and improve your typing skills
             </p>
             <div className="w-20 h-1 bg-gradient-primary rounded-full mx-auto"></div>
+            
+            {/* Time limit selector */}
+            <div className="flex justify-center gap-2 mt-6">
+              {[30, 60, 120].map((time) => (
+                <Button
+                  key={time}
+                  variant={timeLimit === time ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => changeTimeLimit(time)}
+                  className="px-4 py-2 text-sm font-medium"
+                >
+                  {time}s
+                </Button>
+              ))}
+            </div>
           </div>
           
           {/* Progress Bar */}
@@ -170,13 +220,17 @@ export default function TypingTest() {
                 </div>
               </CardContent>
             </Card>
-            <Card className="text-center hover:shadow-lg transition-all duration-300 group border-0 bg-gradient-to-br from-background to-muted/20 shadow-card">
+            <Card className={`text-center hover:shadow-lg transition-all duration-300 group border-0 bg-gradient-to-br from-background to-muted/20 shadow-card ${
+              remainingTime <= 10 && startTime ? 'ring-2 ring-typing-incorrect animate-pulse' : ''
+            }`}>
               <CardContent className="p-6">
-                <div className="text-4xl font-bold text-primary mb-2 group-hover:scale-110 transition-transform duration-300">
-                  {startTime ? Math.round((Date.now() - startTime) / 1000) : 0}
+                <div className={`text-4xl font-bold mb-2 group-hover:scale-110 transition-transform duration-300 ${
+                  remainingTime <= 10 && startTime ? 'text-typing-incorrect' : 'text-primary'
+                }`}>
+                  {remainingTime}
                 </div>
                 <div className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                  Seconds
+                  Time Left
                 </div>
               </CardContent>
             </Card>
@@ -235,17 +289,20 @@ export default function TypingTest() {
               {isComplete && (
                 <div className="text-center p-6 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl border border-primary/30 shadow-lg animate-fade-in">
                   <div className="text-2xl font-bold text-primary mb-3">
-                    🎉 Congratulations! You completed the test.
+                    {isTimeUp ? "⏰ Time's up!" : "🎉 Congratulations! You completed the test."}
                   </div>
                   <div className="text-lg text-muted-foreground">
                     Your final speed: <span className="font-bold text-primary">{wpm} WPM</span> with{' '}
                     <span className="font-bold text-primary">{accuracy}% accuracy</span>
                   </div>
                   <div className="mt-4 text-sm text-muted-foreground">
-                    {wpm >= 60 ? "🔥 Excellent typing speed!" : 
-                     wpm >= 40 ? "👍 Good typing speed!" : 
-                     wpm >= 25 ? "📈 Keep practicing!" : 
-                     "🚀 Room for improvement!"}
+                    {isTimeUp ? 
+                      `You typed ${userInput.length} characters out of ${currentText.length} in ${timeLimit} seconds!` :
+                      (wpm >= 60 ? "🔥 Excellent typing speed!" : 
+                       wpm >= 40 ? "👍 Good typing speed!" : 
+                       wpm >= 25 ? "📈 Keep practicing!" : 
+                       "🚀 Room for improvement!")
+                    }
                   </div>
                 </div>
               )}

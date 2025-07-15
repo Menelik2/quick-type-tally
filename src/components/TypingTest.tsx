@@ -107,118 +107,174 @@ export default function TypingTest() {
   }, []);
   
   return (
-    <div className="w-full max-w-4xl mx-auto p-4 space-y-6">
-      {/* Header */}
-      <div className="text-center space-y-2">
-        <div className="flex items-center justify-center gap-2">
-          <Keyboard className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-            Typing Speed Test
-          </h1>
-        </div>
-        <p className="text-muted-foreground">
-          Test your typing speed and accuracy
-        </p>
-      </div>
-      
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="text-center">
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-primary">{wpm}</div>
-            <div className="text-sm text-muted-foreground">WPM</div>
-          </CardContent>
-        </Card>
-        <Card className="text-center">
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-primary">{accuracy}%</div>
-            <div className="text-sm text-muted-foreground">Accuracy</div>
-          </CardContent>
-        </Card>
-        <Card className="text-center">
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-primary">{userInput.length}</div>
-            <div className="text-sm text-muted-foreground">Characters</div>
-          </CardContent>
-        </Card>
-        <Card className="text-center">
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-primary">
-              {startTime ? Math.round((Date.now() - startTime) / 1000) : 0}
+    <div className="min-h-screen bg-gradient-background">
+      <div className="container mx-auto px-4 py-8">
+        <div className="w-full max-w-5xl mx-auto space-y-8">
+          {/* Header */}
+          <div className="text-center space-y-4">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <div className="relative">
+                <Keyboard className="w-10 h-10 text-primary animate-pulse" />
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full animate-ping"></div>
+              </div>
+              <h1 className="text-5xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+                Typing Speed Test
+              </h1>
             </div>
-            <div className="text-sm text-muted-foreground">Seconds</div>
-          </CardContent>
-        </Card>
-      </div>
-      
-      {/* Typing Area */}
-      <Card className="shadow-typing">
-        <CardHeader>
-          <CardTitle className="text-center">
-            {isComplete ? "Test Complete!" : "Start typing the text below"}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Text to type */}
-          <div className="p-6 bg-gradient-background rounded-lg border-2 border-dashed border-border">
-            <div className="text-lg leading-relaxed font-mono select-none">
-              {renderText()}
-            </div>
+            <p className="text-xl text-muted-foreground font-medium">
+              Challenge yourself and improve your typing skills
+            </p>
+            <div className="w-20 h-1 bg-gradient-primary rounded-full mx-auto"></div>
           </div>
           
-          {/* Input field */}
-          <div className="relative">
-            <input
-              ref={inputRef}
-              type="text"
-              value={userInput}
-              onChange={handleInputChange}
-              disabled={isComplete}
-              placeholder={isComplete ? "Test completed!" : "Click here and start typing..."}
-              className="w-full p-4 text-lg font-mono border-2 border-border rounded-lg focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          {/* Progress Bar */}
+          <div className="w-full bg-muted/30 rounded-full h-2 overflow-hidden">
+            <div 
+              className="h-full bg-gradient-primary transition-all duration-300 ease-out"
+              style={{ width: `${(userInput.length / currentText.length) * 100}%` }}
             />
-            {!isComplete && userInput.length === 0 && (
-              <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted-foreground">
-                Press any key to start
-              </div>
-            )}
           </div>
           
-          {/* Reset button */}
-          <div className="text-center">
-            <Button
-              onClick={resetTest}
-              variant="outline"
-              className="gap-2"
-            >
-              <RotateCcw className="w-4 h-4" />
-              {isComplete ? "Try Again" : "Reset Test"}
-            </Button>
+          {/* Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <Card className="text-center hover:shadow-lg transition-all duration-300 group border-0 bg-gradient-to-br from-background to-muted/20 shadow-card">
+              <CardContent className="p-6">
+                <div className="text-4xl font-bold text-primary mb-2 group-hover:scale-110 transition-transform duration-300">
+                  {wpm}
+                </div>
+                <div className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                  Words/Min
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="text-center hover:shadow-lg transition-all duration-300 group border-0 bg-gradient-to-br from-background to-muted/20 shadow-card">
+              <CardContent className="p-6">
+                <div className={`text-4xl font-bold mb-2 group-hover:scale-110 transition-transform duration-300 ${
+                  accuracy >= 95 ? 'text-typing-correct' : 
+                  accuracy >= 80 ? 'text-typing-current' : 'text-typing-incorrect'
+                }`}>
+                  {accuracy}%
+                </div>
+                <div className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                  Accuracy
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="text-center hover:shadow-lg transition-all duration-300 group border-0 bg-gradient-to-br from-background to-muted/20 shadow-card">
+              <CardContent className="p-6">
+                <div className="text-4xl font-bold text-primary mb-2 group-hover:scale-110 transition-transform duration-300">
+                  {userInput.length}
+                </div>
+                <div className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                  Characters
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="text-center hover:shadow-lg transition-all duration-300 group border-0 bg-gradient-to-br from-background to-muted/20 shadow-card">
+              <CardContent className="p-6">
+                <div className="text-4xl font-bold text-primary mb-2 group-hover:scale-110 transition-transform duration-300">
+                  {startTime ? Math.round((Date.now() - startTime) / 1000) : 0}
+                </div>
+                <div className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                  Seconds
+                </div>
+              </CardContent>
+            </Card>
           </div>
           
-          {/* Completion message */}
-          {isComplete && (
-            <div className="text-center p-4 bg-primary/10 rounded-lg border border-primary/20">
-              <div className="text-lg font-semibold text-primary mb-2">
-                Great job! You completed the test.
+          {/* Typing Area */}
+          <Card className="shadow-typing border-0 bg-gradient-to-br from-background to-muted/10 overflow-hidden">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-center text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+                {isComplete ? "🎉 Test Complete!" : "⌨️ Start typing the text below"}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Text to type */}
+              <div className="relative p-8 bg-gradient-to-br from-background to-muted/30 rounded-xl border border-border/50 shadow-inner">
+                <div className="absolute top-4 right-4 text-xs text-muted-foreground font-mono">
+                  {Math.round((userInput.length / currentText.length) * 100)}%
+                </div>
+                <div className="text-xl leading-relaxed font-mono select-none tracking-wide">
+                  {renderText()}
+                </div>
               </div>
-              <div className="text-sm text-muted-foreground">
-                Your final speed: <span className="font-medium">{wpm} WPM</span> with{' '}
-                <span className="font-medium">{accuracy}% accuracy</span>
+              
+              {/* Input field */}
+              <div className="relative">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={userInput}
+                  onChange={handleInputChange}
+                  disabled={isComplete}
+                  placeholder={isComplete ? "Test completed! 🎉" : "Click here and start typing..."}
+                  className="w-full p-6 text-xl font-mono border-2 border-border/50 rounded-xl focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-background to-muted/20 shadow-inner"
+                />
+                {!isComplete && userInput.length === 0 && (
+                  <div className="absolute right-6 top-1/2 transform -translate-y-1/2 text-muted-foreground flex items-center gap-2">
+                    <span className="animate-pulse">Press any key to start</span>
+                    <div className="w-2 h-6 bg-primary rounded animate-pulse"></div>
+                  </div>
+                )}
               </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-      
-      {/* Instructions */}
-      <div className="text-center text-sm text-muted-foreground max-w-2xl mx-auto">
-        <p>
-          Type the text exactly as shown above. Correct characters will appear in{' '}
-          <span className="text-typing-correct font-medium">green</span>, incorrect ones in{' '}
-          <span className="text-typing-incorrect font-medium">red</span>, and the current character will be{' '}
-          <span className="text-typing-current font-medium">highlighted</span>.
-        </p>
+              
+              {/* Reset button */}
+              <div className="text-center">
+                <Button
+                  onClick={resetTest}
+                  variant="outline"
+                  className="gap-2 px-8 py-3 text-lg font-semibold border-2 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300 hover:shadow-lg hover:scale-105"
+                >
+                  <RotateCcw className="w-5 h-5" />
+                  {isComplete ? "Try Again" : "Reset Test"}
+                </Button>
+              </div>
+              
+              {/* Completion message */}
+              {isComplete && (
+                <div className="text-center p-6 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl border border-primary/30 shadow-lg animate-fade-in">
+                  <div className="text-2xl font-bold text-primary mb-3">
+                    🎉 Congratulations! You completed the test.
+                  </div>
+                  <div className="text-lg text-muted-foreground">
+                    Your final speed: <span className="font-bold text-primary">{wpm} WPM</span> with{' '}
+                    <span className="font-bold text-primary">{accuracy}% accuracy</span>
+                  </div>
+                  <div className="mt-4 text-sm text-muted-foreground">
+                    {wpm >= 60 ? "🔥 Excellent typing speed!" : 
+                     wpm >= 40 ? "👍 Good typing speed!" : 
+                     wpm >= 25 ? "📈 Keep practicing!" : 
+                     "🚀 Room for improvement!"}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+          
+          {/* Instructions */}
+          <Card className="border-0 bg-gradient-to-br from-muted/20 to-muted/10 shadow-card">
+            <CardContent className="p-6">
+              <div className="text-center text-muted-foreground max-w-3xl mx-auto">
+                <h3 className="text-lg font-semibold mb-3 text-foreground">How to use:</h3>
+                <div className="grid md:grid-cols-3 gap-4 text-sm">
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="w-4 h-4 bg-typing-correct rounded-full"></span>
+                    <span>Correct characters appear in <span className="text-typing-correct font-semibold">green</span></span>
+                  </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="w-4 h-4 bg-typing-incorrect rounded-full"></span>
+                    <span>Incorrect characters appear in <span className="text-typing-incorrect font-semibold">red</span></span>
+                  </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="w-4 h-4 bg-typing-current rounded-full animate-pulse"></span>
+                    <span>Current character is <span className="text-typing-current font-semibold">highlighted</span></span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

@@ -160,7 +160,7 @@ export default function TypingTest() {
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full animate-ping"></div>
               </div>
               <h1 className="text-5xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                Typing Speed Test
+                Yeni Typing Speed Test
               </h1>
             </div>
             <p className="text-xl text-muted-foreground font-medium">
@@ -342,4 +342,7 @@ export default function TypingTest() {
       </div>
     </div>
   );
+  
+  <footer>
+  By Menelik Admasu</footer>
 }

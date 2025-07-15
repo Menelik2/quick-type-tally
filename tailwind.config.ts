@@ -61,7 +61,26 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				typing: {
+					correct: 'hsl(var(--typing-correct))',
+					incorrect: 'hsl(var(--typing-incorrect))',
+					current: 'hsl(var(--typing-current))',
+					pending: 'hsl(var(--typing-pending))',
+					cursor: 'hsl(var(--typing-cursor))'
 				}
+			},
+			backgroundImage: {
+				'gradient-primary': 'var(--gradient-primary)',
+				'gradient-background': 'var(--gradient-background)'
+			},
+			boxShadow: {
+				'typing': 'var(--shadow-typing)',
+				'card': 'var(--shadow-card)'
+			},
+			transitionTimingFunction: {
+				'smooth': 'var(--transition-smooth)',
+				'fast': 'var(--transition-fast)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

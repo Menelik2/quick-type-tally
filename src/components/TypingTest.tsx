@@ -340,9 +340,12 @@ export default function TypingTest() {
           </Card>
         </div>
       </div>
+
+      <footer style={{ textAlign: "center", marginTop: "2rem", color: "#888" }}>
+      By Menelik Admasu
+    </footer>
     </div>
   );
   
-  <footer>
-  By Menelik Admasu</footer>
+ 
 }

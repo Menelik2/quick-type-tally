@@ -231,70 +231,93 @@ export default function TypingTest() {
   }
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-200/30 to-purple-200/30 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-pink-200/30 to-orange-200/30 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
+      </div>
+
       {/* Optional Ad Banner */}
       {showAds && (
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center py-2 text-sm">
-          🚀 Improve your typing speed by 50% in 30 days! 
-          <Button variant="link" className="text-white underline ml-2" size="sm">
-            Learn More
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowAds(false)}
-            className="ml-2 text-white hover:bg-white/20"
-          >
-            ×
-          </Button>
+        <div className="relative z-10 bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 text-white text-center py-3 shadow-lg">
+          <div className="flex items-center justify-center gap-3 text-sm">
+            <Zap className="w-4 h-4" />
+            <span className="font-medium">🚀 Boost your typing speed by 50% in 30 days!</span>
+            <Button variant="link" className="text-white underline font-medium" size="sm">
+              Learn More
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowAds(false)}
+              className="ml-2 text-white hover:bg-white/20 transition-colors"
+            >
+              ×
+            </Button>
+          </div>
         </div>
       )}
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="w-full max-w-6xl mx-auto space-y-6">
+      <div className="relative z-10 container mx-auto px-4 py-8">
+        <div className="w-full max-w-6xl mx-auto space-y-8">
           {/* Header */}
-          <div className="text-center space-y-4">
-            <div className="flex items-center justify-center gap-3">
-              {monkeyMode && <Activity className="w-8 h-8 text-amber-500" />}
-              <Keyboard className="w-8 h-8 text-blue-600" />
-              <h1 className="text-4xl font-bold text-gray-800">
-                {monkeyMode ? "🐵 Monkey Typing" : "Minimal Type"}
+          <div className="text-center space-y-6">
+            <div className="flex items-center justify-center gap-4 animate-fade-in">
+              {monkeyMode && <Activity className="w-10 h-10 text-amber-500 animate-bounce" />}
+              <Keyboard className="w-10 h-10 text-indigo-600" />
+              <h1 className="text-5xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                {monkeyMode ? "🐵 Monkey Typing" : "TypeMaster Pro"}
               </h1>
             </div>
             
             {/* Controls */}
-            <div className="flex items-center justify-center gap-4 flex-wrap">
+            <div className="flex items-center justify-center gap-6 flex-wrap">
               {/* Time limits */}
-              <div className="flex gap-2">
+              <div className="flex gap-2 p-1 bg-white/50 backdrop-blur-sm rounded-lg border border-white/20 shadow-lg">
                 {[15, 30, 60, 120].map((time) => (
                   <Button
                     key={time}
-                    variant={timeLimit === time ? "default" : "outline"}
+                    variant={timeLimit === time ? "default" : "ghost"}
                     size="sm"
                     onClick={() => changeTimeLimit(time)}
+                    className={`relative transition-all duration-300 ${
+                      timeLimit === time 
+                        ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg transform scale-105" 
+                        : "hover:bg-white/60 text-gray-700"
+                    }`}
                   >
+                    <Clock className="w-3 h-3 mr-1" />
                     {time}s
                   </Button>
                 ))}
               </div>
               
               {/* Mode toggles */}
-              <div className="flex gap-2">
+              <div className="flex gap-2 p-1 bg-white/50 backdrop-blur-sm rounded-lg border border-white/20 shadow-lg">
                 <Button
-                  variant={focusMode ? "default" : "outline"}
+                  variant={focusMode ? "default" : "ghost"}
                   size="sm"
                   onClick={toggleFocusMode}
-                  className="gap-2"
+                  className={`gap-2 transition-all duration-300 ${
+                    focusMode 
+                      ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg" 
+                      : "hover:bg-white/60 text-gray-700"
+                  }`}
                 >
                   {focusMode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   Focus
                 </Button>
                 
                 <Button
-                  variant={monkeyMode ? "default" : "outline"}
+                  variant={monkeyMode ? "default" : "ghost"}
                   size="sm"
                   onClick={toggleMonkeyMode}
-                  className="gap-2"
+                  className={`gap-2 transition-all duration-300 ${
+                    monkeyMode 
+                      ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg" 
+                      : "hover:bg-white/60 text-gray-700"
+                  }`}
                 >
                   <Activity className="w-4 h-4" />
                   Monkey
@@ -304,107 +327,112 @@ export default function TypingTest() {
           </div>
           
           {/* Progress Bar */}
-          <Progress 
-            value={(userInput.length / currentText.length) * 100} 
-            className="h-2"
-          />
+          <div className="relative">
+            <Progress 
+              value={(userInput.length / currentText.length) * 100} 
+              className="h-3 bg-white/50 backdrop-blur-sm border border-white/20 shadow-lg"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full opacity-20 animate-pulse"></div>
+          </div>
           
           {/* Stats Grid */}
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <Card className="text-center border-0 shadow-sm">
-              <CardContent className="p-4">
-                <div className="text-2xl font-bold text-blue-600">{wpm}</div>
-                <div className="text-xs text-muted-foreground">WPM</div>
-              </CardContent>
-            </Card>
-            
-            <Card className="text-center border-0 shadow-sm">
-              <CardContent className="p-4">
-                <div className={`text-2xl font-bold ${accuracy >= 95 ? 'text-green-600' : accuracy >= 80 ? 'text-yellow-600' : 'text-red-600'}`}>
-                  {accuracy}%
-                </div>
-                <div className="text-xs text-muted-foreground">Accuracy</div>
-              </CardContent>
-            </Card>
-            
-            <Card className="text-center border-0 shadow-sm">
-              <CardContent className="p-4">
-                <div className="text-2xl font-bold text-purple-600">{remainingTime}</div>
-                <div className="text-xs text-muted-foreground">Time</div>
-              </CardContent>
-            </Card>
-            
-            <Card className="text-center border-0 shadow-sm">
-              <CardContent className="p-4">
-                <div className="text-2xl font-bold text-orange-600">{streak}</div>
-                <div className="text-xs text-muted-foreground">Streak</div>
-              </CardContent>
-            </Card>
-            
-            <Card className="text-center border-0 shadow-sm">
-              <CardContent className="p-4">
-                <div className="text-2xl font-bold text-amber-600">{bestWpm}</div>
-                <div className="text-xs text-muted-foreground">Best</div>
-              </CardContent>
-            </Card>
+            {[
+              { label: "WPM", value: wpm, icon: Zap, color: "from-blue-500 to-indigo-600" },
+              { label: "Accuracy", value: `${accuracy}%`, icon: Target, color: accuracy >= 95 ? "from-green-500 to-emerald-600" : accuracy >= 80 ? "from-yellow-500 to-amber-600" : "from-red-500 to-rose-600" },
+              { label: "Time", value: remainingTime, icon: Clock, color: remainingTime <= 10 ? "from-red-500 to-rose-600" : "from-purple-500 to-violet-600" },
+              { label: "Streak", value: streak, icon: Zap, color: "from-orange-500 to-amber-600" },
+              { label: "Best", value: bestWpm, icon: Trophy, color: "from-yellow-500 to-amber-600" }
+            ].map((stat, index) => (
+              <Card key={stat.label} className="group relative overflow-hidden border-0 bg-white/60 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+                <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-5 group-hover:opacity-10 transition-opacity`}></div>
+                <CardContent className="relative p-6 text-center">
+                  <stat.icon className={`w-5 h-5 mx-auto mb-2 bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`} />
+                  <div className={`text-3xl font-bold bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`}>
+                    {stat.value}
+                  </div>
+                  <div className="text-xs font-medium text-gray-600 uppercase tracking-wide">{stat.label}</div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
           
           {/* Typing Area */}
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-8 space-y-6">
+          <Card className="group relative overflow-hidden border-0 bg-white/70 backdrop-blur-lg shadow-2xl hover:shadow-3xl transition-all duration-500">
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 via-purple-50/50 to-pink-50/50"></div>
+            <CardContent className="relative p-8 space-y-8">
               {/* Text to type */}
-              <div className="relative p-6 bg-gray-50 rounded-lg">
-                <div className="text-lg leading-relaxed font-mono">
+              <div className="relative p-8 bg-gradient-to-br from-white/80 to-gray-50/80 backdrop-blur-sm rounded-2xl border border-white/30 shadow-inner">
+                <div className="text-xl leading-relaxed font-mono tracking-wide">
                   {renderText()}
                 </div>
-                <div className="absolute top-2 right-2 text-xs text-gray-400">
-                  {Math.round((userInput.length / currentText.length) * 100)}%
+                <div className="absolute top-4 right-4 flex items-center gap-2">
+                  <div className="text-xs font-medium text-gray-500 bg-white/60 px-3 py-1 rounded-full border">
+                    {Math.round((userInput.length / currentText.length) * 100)}% Complete
+                  </div>
                 </div>
               </div>
               
               {/* Input field */}
-              <input
-                ref={inputRef}
-                type="text"
-                value={userInput}
-                onChange={handleInputChange}
-                disabled={isComplete}
-                placeholder={isComplete ? "Test completed!" : "Start typing here..."}
-                className="w-full p-4 text-lg border border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 disabled:opacity-50"
-              />
+              <div className="relative">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={userInput}
+                  onChange={handleInputChange}
+                  disabled={isComplete}
+                  placeholder={isComplete ? "Test completed! 🎉" : "Start typing here to begin..."}
+                  className="w-full p-6 text-xl bg-white/60 backdrop-blur-sm border-2 border-white/30 rounded-2xl focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-200/50 disabled:opacity-50 transition-all duration-300 shadow-lg placeholder:text-gray-400"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-indigo-400/20 via-purple-400/20 to-pink-400/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+              </div>
               
               {/* Controls */}
               <div className="flex justify-center gap-4">
-                <Button onClick={resetTest} variant="outline" className="gap-2">
-                  <RotateCcw className="w-4 h-4" />
-                  Reset
+                <Button 
+                  onClick={resetTest} 
+                  variant="outline" 
+                  className="gap-3 px-6 py-3 bg-white/60 backdrop-blur-sm border-white/30 hover:bg-white/80 hover:scale-105 transition-all duration-300 shadow-lg"
+                >
+                  <RotateCcw className="w-5 h-5" />
+                  Reset Test
                 </Button>
                 
                 <Button
                   onClick={toggleFocusMode}
                   variant="outline"
-                  className="gap-2"
+                  className="gap-3 px-6 py-3 bg-white/60 backdrop-blur-sm border-white/30 hover:bg-white/80 hover:scale-105 transition-all duration-300 shadow-lg"
                 >
-                  <Eye className="w-4 h-4" />
+                  <Eye className="w-5 h-5" />
                   Focus Mode
                 </Button>
               </div>
               
               {/* Completion message */}
               {isComplete && (
-                <div className="text-center p-6 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
-                  <div className="text-xl font-bold text-gray-800 mb-2">
-                    {isTimeUp ? "⏰ Time's up!" : "🎉 Test Complete!"}
+                <div className="text-center p-8 bg-gradient-to-r from-emerald-50 via-blue-50 to-purple-50 rounded-2xl border-2 border-emerald-200/50 shadow-lg animate-fade-in">
+                  <div className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent mb-4">
+                    {isTimeUp ? "⏰ Time's Up!" : "🎉 Incredible Job!"}
                   </div>
-                  <div className="text-gray-600">
-                    Final speed: <span className="font-semibold text-blue-600">{wpm} WPM</span> | 
-                    Accuracy: <span className="font-semibold text-green-600">{accuracy}%</span>
+                  <div className="text-lg text-gray-700 space-y-2">
+                    <div>
+                      Final Speed: <span className="font-bold text-2xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">{wpm} WPM</span>
+                    </div>
+                    <div>
+                      Accuracy: <span className="font-bold text-2xl bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">{accuracy}%</span>
+                    </div>
                   </div>
                   {monkeyMode && (
-                    <div className="mt-2 text-sm text-amber-600">
-                      🐵 Banana count: {Math.floor(wpm / 10)} bananas!
+                    <div className="mt-4 text-lg font-medium text-amber-600">
+                      🐵 Banana Achievement: {Math.floor(wpm / 10)} bananas collected!
                     </div>
                   )}
+                  <Button 
+                    onClick={resetTest}
+                    className="mt-6 px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                  >
+                    Try Again
+                  </Button>
                 </div>
               )}
             </CardContent>
@@ -414,23 +442,28 @@ export default function TypingTest() {
 
       {/* Optional Sidebar Ad */}
       {showAds && (
-        <div className="fixed right-4 top-1/2 transform -translate-y-1/2 w-48 bg-white rounded-lg shadow-lg p-4 border">
-          <div className="text-center">
-            <Trophy className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
-            <div className="text-sm font-semibold text-gray-800 mb-2">
-              Typing Challenge
+        <div className="fixed right-6 top-1/2 transform -translate-y-1/2 w-56 bg-white/80 backdrop-blur-lg rounded-2xl shadow-2xl p-6 border border-white/30 z-20">
+          <div className="text-center space-y-4">
+            <div className="relative">
+              <Trophy className="w-12 h-12 text-yellow-500 mx-auto" />
+              <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full blur-lg opacity-30"></div>
             </div>
-            <div className="text-xs text-gray-600 mb-3">
-              Join daily challenges and compete with others!
+            <div className="space-y-2">
+              <h3 className="text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Daily Challenge
+              </h3>
+              <p className="text-sm text-gray-600">
+                Compete with typists worldwide and earn achievements!
+              </p>
             </div>
-            <Button size="sm" className="w-full text-xs">
-              Join Now
+            <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+              Join Challenge
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setShowAds(false)}
-              className="mt-2 text-xs"
+              className="text-xs text-gray-500 hover:text-gray-700"
             >
               Hide Ads
             </Button>
@@ -438,8 +471,11 @@ export default function TypingTest() {
         </div>
       )}
       
-      <footer className="text-center py-4 text-sm text-gray-500">
-        By Menelik Admasu
+      {/* Modern Footer */}
+      <footer className="relative z-10 text-center py-8">
+        <div className="text-sm font-medium bg-gradient-to-r from-gray-600 to-gray-800 bg-clip-text text-transparent">
+          Crafted with ❤️ by Menelik Admasu
+        </div>
       </footer>
     </div>
   );

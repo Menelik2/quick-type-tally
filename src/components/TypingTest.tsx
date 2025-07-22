@@ -1,22 +1,36 @@
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { RotateCcw, Keyboard } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { RotateCcw, Keyboard, Eye, EyeOff, Zap, Target, Clock, Trophy, Settings, Activity } from 'lucide-react';
 
 // Sample paragraphs for typing test
-
 const SAMPLE_TEXTS = [
   "The quick brown fox jumps over the lazy dog. This pangram contains every letter of the alphabet and has been used for decades to test typewriters and keyboards. It remains a popular choice for typing practice.",
   "Technology has transformed the way we communicate, work, and live. From smartphones to artificial intelligence, these innovations continue to shape our daily experiences and create new opportunities.",
   "Reading is one of the most powerful tools for expanding knowledge and imagination. Through books, we can explore different worlds, learn from diverse perspectives, and develop critical thinking skills.",
   "The art of cooking brings people together through shared meals and cultural traditions. Whether preparing a simple dish or an elaborate feast, cooking allows us to express creativity while nourishing our bodies.",
   "Nature provides countless wonders that inspire and rejuvenate us. From towering mountains to serene lakes, the natural world offers beauty and peace that reminds us of our connection to the environment.",
-
   "Typing efficiently is a valuable skill in today's digital age. Practicing regularly helps to increase your words per minute and reduces errors, making it easier to complete tasks at school or work.",
   "A beautiful sunrise painted the sky with shades of orange and pink. Birds chirped cheerfully in the trees, welcoming a new day full of possibilities and opportunities.",
   "Learning to touch type can be challenging at first, but with persistence and practice, your fingers will learn where each key is located without needing to look at the keyboard.",
   "Teamwork and collaboration are essential in achieving success. By working together, we can overcome challenges and accomplish more than we ever could alone.",
   "Music has the power to evoke emotions and memories, connecting people across cultures and generations. Whether listening or performing, music enriches our lives in countless ways."
+];
+
+// Monkey typing phrases for fun mode
+const MONKEY_PHRASES = [
+  "banana split keyboard warrior",
+  "typing monkey goes bananas",
+  "fast fingers flying freely",
+  "quick brown monkeys jump",
+  "digital banana plantation",
+  "keyboard jungle adventure",
+  "monkey see monkey type",
+  "banana powered typing machine",
+  "swing from key to key",
+  "tropical typing paradise"
 ];
 
 export default function TypingTest() {
@@ -26,12 +40,19 @@ export default function TypingTest() {
   const [isComplete, setIsComplete] = useState(false);
   const [wpm, setWpm] = useState(0);
   const [accuracy, setAccuracy] = useState(100);
-  const [timeLimit, setTimeLimit] = useState(60); // 60 seconds by default
+  const [timeLimit, setTimeLimit] = useState(60);
   const [remainingTime, setRemainingTime] = useState(60);
   const [isTimeUp, setIsTimeUp] = useState(false);
+  const [focusMode, setFocusMode] = useState(false);
+  const [showAds, setShowAds] = useState(true);
+  const [monkeyMode, setMonkeyMode] = useState(false);
+  const [streak, setStreak] = useState(0);
+  const [bestWpm, setBestWpm] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   
-  const currentText = SAMPLE_TEXTS[currentTextIndex];
+  const currentText = monkeyMode ? 
+    MONKEY_PHRASES[currentTextIndex % MONKEY_PHRASES.length].repeat(3) : 
+    SAMPLE_TEXTS[currentTextIndex];
   
   // Timer countdown effect
   useEffect(() => {
@@ -57,11 +78,16 @@ export default function TypingTest() {
   useEffect(() => {
     if (!startTime || userInput.length === 0) return;
     
-    const timeElapsed = (Date.now() - startTime) / 1000 / 60; // in minutes
-    const wordsTyped = userInput.length / 5; // standard: 5 characters = 1 word
+    const timeElapsed = (Date.now() - startTime) / 1000 / 60;
+    const wordsTyped = userInput.length / 5;
     const currentWpm = Math.round(wordsTyped / timeElapsed);
     
     setWpm(currentWpm);
+    
+    // Update best WPM
+    if (currentWpm > bestWpm) {
+      setBestWpm(currentWpm);
+    }
     
     // Calculate accuracy
     let correctChars = 0;
@@ -73,25 +99,29 @@ export default function TypingTest() {
     const currentAccuracy = userInput.length > 0 ? Math.round((correctChars / userInput.length) * 100) : 100;
     setAccuracy(currentAccuracy);
     
-    // Check if test is complete by typing all characters
+    // Update streak
+    if (userInput.length > 0 && userInput[userInput.length - 1] === currentText[userInput.length - 1]) {
+      setStreak(prev => prev + 1);
+    } else if (userInput.length > 0) {
+      setStreak(0);
+    }
+    
+    // Check if test is complete
     if (userInput.length === currentText.length && !isTimeUp) {
       setIsComplete(true);
     }
-  }, [userInput, startTime, currentText, isTimeUp]);
+  }, [userInput, startTime, currentText, isTimeUp, bestWpm]);
   
   // Handle input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     
-    // Don't allow typing if time is up
     if (isTimeUp || isComplete) return;
     
-    // Start timer on first character
     if (value.length === 1 && !startTime) {
       setStartTime(Date.now());
     }
     
-    // Only allow typing up to the text length
     if (value.length <= currentText.length) {
       setUserInput(value);
     }
@@ -112,26 +142,40 @@ export default function TypingTest() {
     setIsTimeUp(false);
     setWpm(0);
     setAccuracy(100);
+    setStreak(0);
     setRemainingTime(timeLimit);
-    setCurrentTextIndex(Math.floor(Math.random() * SAMPLE_TEXTS.length));
+    setCurrentTextIndex(monkeyMode ? 
+      Math.floor(Math.random() * MONKEY_PHRASES.length) : 
+      Math.floor(Math.random() * SAMPLE_TEXTS.length));
     inputRef.current?.focus();
+  };
+  
+  // Toggle focus mode
+  const toggleFocusMode = () => {
+    setFocusMode(!focusMode);
+  };
+
+  // Toggle monkey mode
+  const toggleMonkeyMode = () => {
+    setMonkeyMode(!monkeyMode);
+    resetTest();
   };
   
   // Render text with highlighting
   const renderText = () => {
     return currentText.split('').map((char, index) => {
-      let className = 'text-typing-pending';
+      let className = 'transition-all duration-150';
       
       if (index < userInput.length) {
-        // Character has been typed
         if (userInput[index] === char) {
-          className = 'text-typing-correct bg-typing-correct/10';
+          className += ' text-green-500 bg-green-50';
         } else {
-          className = 'text-typing-incorrect bg-typing-incorrect/20';
+          className += ' text-red-500 bg-red-50';
         }
       } else if (index === userInput.length) {
-        // Current character to type
-        className = 'text-typing-current bg-typing-current/20 animate-pulse';
+        className += ' bg-blue-200 animate-pulse';
+      } else {
+        className += ' text-muted-foreground';
       }
       
       return (
@@ -147,205 +191,256 @@ export default function TypingTest() {
     inputRef.current?.focus();
     setCurrentTextIndex(Math.floor(Math.random() * SAMPLE_TEXTS.length));
   }, []);
+
+  if (focusMode && startTime && !isComplete) {
+    return (
+      <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-8">
+        <div className="w-full max-w-4xl mx-auto space-y-8">
+          {/* Minimal stats in focus mode */}
+          <div className="flex justify-between items-center text-sm text-gray-400">
+            <div>WPM: {wpm}</div>
+            <div>Time: {remainingTime}s</div>
+            <div>Accuracy: {accuracy}%</div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleFocusMode}
+              className="text-gray-400 hover:text-white"
+            >
+              <Eye className="w-4 h-4" />
+            </Button>
+          </div>
+          
+          {/* Text to type */}
+          <div className="text-2xl leading-relaxed font-mono text-center px-8">
+            {renderText()}
+          </div>
+          
+          {/* Hidden input */}
+          <input
+            ref={inputRef}
+            type="text"
+            value={userInput}
+            onChange={handleInputChange}
+            className="sr-only"
+            autoFocus
+          />
+        </div>
+      </div>
+    );
+  }
   
   return (
-    <div className="min-h-screen bg-gradient-background">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      {/* Optional Ad Banner */}
+      {showAds && (
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center py-2 text-sm">
+          🚀 Improve your typing speed by 50% in 30 days! 
+          <Button variant="link" className="text-white underline ml-2" size="sm">
+            Learn More
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowAds(false)}
+            className="ml-2 text-white hover:bg-white/20"
+          >
+            ×
+          </Button>
+        </div>
+      )}
+
       <div className="container mx-auto px-4 py-8">
-        <div className="w-full max-w-5xl mx-auto space-y-8">
+        <div className="w-full max-w-6xl mx-auto space-y-6">
           {/* Header */}
           <div className="text-center space-y-4">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <div className="relative">
-                <Keyboard className="w-10 h-10 text-primary animate-pulse" />
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full animate-ping"></div>
-              </div>
-              <h1 className="text-5xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                Yeni Typing Speed Test
+            <div className="flex items-center justify-center gap-3">
+              {monkeyMode && <Activity className="w-8 h-8 text-amber-500" />}
+              <Keyboard className="w-8 h-8 text-blue-600" />
+              <h1 className="text-4xl font-bold text-gray-800">
+                {monkeyMode ? "🐵 Monkey Typing" : "Minimal Type"}
               </h1>
             </div>
-            <p className="text-xl text-muted-foreground font-medium">
-              Challenge yourself and improve your typing skills
-            </p>
-            <div className="w-20 h-1 bg-gradient-primary rounded-full mx-auto"></div>
             
-            {/* Time limit selector */}
-            <div className="flex justify-center gap-2 mt-6">
-              {[30, 60, 120].map((time) => (
+            {/* Controls */}
+            <div className="flex items-center justify-center gap-4 flex-wrap">
+              {/* Time limits */}
+              <div className="flex gap-2">
+                {[15, 30, 60, 120].map((time) => (
+                  <Button
+                    key={time}
+                    variant={timeLimit === time ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => changeTimeLimit(time)}
+                  >
+                    {time}s
+                  </Button>
+                ))}
+              </div>
+              
+              {/* Mode toggles */}
+              <div className="flex gap-2">
                 <Button
-                  key={time}
-                  variant={timeLimit === time ? "default" : "outline"}
+                  variant={focusMode ? "default" : "outline"}
                   size="sm"
-                  onClick={() => changeTimeLimit(time)}
-                  className="px-4 py-2 text-sm font-medium"
+                  onClick={toggleFocusMode}
+                  className="gap-2"
                 >
-                  {time}s
+                  {focusMode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  Focus
                 </Button>
-              ))}
+                
+                <Button
+                  variant={monkeyMode ? "default" : "outline"}
+                  size="sm"
+                  onClick={toggleMonkeyMode}
+                  className="gap-2"
+                >
+                  <Activity className="w-4 h-4" />
+                  Monkey
+                </Button>
+              </div>
             </div>
           </div>
           
           {/* Progress Bar */}
-          <div className="w-full bg-muted/30 rounded-full h-2 overflow-hidden">
-            <div 
-              className="h-full bg-gradient-primary transition-all duration-300 ease-out"
-              style={{ width: `${(userInput.length / currentText.length) * 100}%` }}
-            />
-          </div>
+          <Progress 
+            value={(userInput.length / currentText.length) * 100} 
+            className="h-2"
+          />
           
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <Card className="text-center hover:shadow-lg transition-all duration-300 group border-0 bg-gradient-to-br from-background to-muted/20 shadow-card">
-              <CardContent className="p-6">
-                <div className="text-4xl font-bold text-primary mb-2 group-hover:scale-110 transition-transform duration-300">
-                  {wpm}
-                </div>
-                <div className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                  Words/Min
-                </div>
+          {/* Stats Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <Card className="text-center border-0 shadow-sm">
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold text-blue-600">{wpm}</div>
+                <div className="text-xs text-muted-foreground">WPM</div>
               </CardContent>
             </Card>
-            <Card className="text-center hover:shadow-lg transition-all duration-300 group border-0 bg-gradient-to-br from-background to-muted/20 shadow-card">
-              <CardContent className="p-6">
-                <div className={`text-4xl font-bold mb-2 group-hover:scale-110 transition-transform duration-300 ${
-                  accuracy >= 95 ? 'text-typing-correct' : 
-                  accuracy >= 80 ? 'text-typing-current' : 'text-typing-incorrect'
-                }`}>
+            
+            <Card className="text-center border-0 shadow-sm">
+              <CardContent className="p-4">
+                <div className={`text-2xl font-bold ${accuracy >= 95 ? 'text-green-600' : accuracy >= 80 ? 'text-yellow-600' : 'text-red-600'}`}>
                   {accuracy}%
                 </div>
-                <div className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                  Accuracy
-                </div>
+                <div className="text-xs text-muted-foreground">Accuracy</div>
               </CardContent>
             </Card>
-            <Card className="text-center hover:shadow-lg transition-all duration-300 group border-0 bg-gradient-to-br from-background to-muted/20 shadow-card">
-              <CardContent className="p-6">
-                <div className="text-4xl font-bold text-primary mb-2 group-hover:scale-110 transition-transform duration-300">
-                  {userInput.length}
-                </div>
-                <div className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                  Characters
-                </div>
+            
+            <Card className="text-center border-0 shadow-sm">
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold text-purple-600">{remainingTime}</div>
+                <div className="text-xs text-muted-foreground">Time</div>
               </CardContent>
             </Card>
-            <Card className={`text-center hover:shadow-lg transition-all duration-300 group border-0 bg-gradient-to-br from-background to-muted/20 shadow-card ${
-              remainingTime <= 10 && startTime ? 'ring-2 ring-typing-incorrect animate-pulse' : ''
-            }`}>
-              <CardContent className="p-6">
-                <div className={`text-4xl font-bold mb-2 group-hover:scale-110 transition-transform duration-300 ${
-                  remainingTime <= 10 && startTime ? 'text-typing-incorrect' : 'text-primary'
-                }`}>
-                  {remainingTime}
-                </div>
-                <div className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                  Time Left
-                </div>
+            
+            <Card className="text-center border-0 shadow-sm">
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold text-orange-600">{streak}</div>
+                <div className="text-xs text-muted-foreground">Streak</div>
+              </CardContent>
+            </Card>
+            
+            <Card className="text-center border-0 shadow-sm">
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold text-amber-600">{bestWpm}</div>
+                <div className="text-xs text-muted-foreground">Best</div>
               </CardContent>
             </Card>
           </div>
           
           {/* Typing Area */}
-          <Card className="shadow-typing border-0 bg-gradient-to-br from-background to-muted/10 overflow-hidden">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-center text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                {isComplete ? "🎉 Test Complete!" : "⌨️ Start typing the text below"}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
+          <Card className="border-0 shadow-sm">
+            <CardContent className="p-8 space-y-6">
               {/* Text to type */}
-              <div className="relative p-8 bg-gradient-to-br from-background to-muted/30 rounded-xl border border-border/50 shadow-inner">
-                <div className="absolute top-4 right-4 text-xs text-muted-foreground font-mono">
-                  {Math.round((userInput.length / currentText.length) * 100)}%
-                </div>
-                <div className="text-xl leading-relaxed font-mono select-none tracking-wide">
+              <div className="relative p-6 bg-gray-50 rounded-lg">
+                <div className="text-lg leading-relaxed font-mono">
                   {renderText()}
+                </div>
+                <div className="absolute top-2 right-2 text-xs text-gray-400">
+                  {Math.round((userInput.length / currentText.length) * 100)}%
                 </div>
               </div>
               
               {/* Input field */}
-              <div className="relative">
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={userInput}
-                  onChange={handleInputChange}
-                  disabled={isComplete}
-                  placeholder={isComplete ? "Test completed! 🎉" : "Click here and start typing..."}
-                  className="w-full p-6 text-xl font-mono border-2 border-border/50 rounded-xl focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-background to-muted/20 shadow-inner"
-                />
-                {!isComplete && userInput.length === 0 && (
-                  <div className="absolute right-6 top-1/2 transform -translate-y-1/2 text-muted-foreground flex items-center gap-2">
-                    <span className="animate-pulse">Press any key to start</span>
-                    <div className="w-2 h-6 bg-primary rounded animate-pulse"></div>
-                  </div>
-                )}
-              </div>
+              <input
+                ref={inputRef}
+                type="text"
+                value={userInput}
+                onChange={handleInputChange}
+                disabled={isComplete}
+                placeholder={isComplete ? "Test completed!" : "Start typing here..."}
+                className="w-full p-4 text-lg border border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 disabled:opacity-50"
+              />
               
-              {/* Reset button */}
-              <div className="text-center">
+              {/* Controls */}
+              <div className="flex justify-center gap-4">
+                <Button onClick={resetTest} variant="outline" className="gap-2">
+                  <RotateCcw className="w-4 h-4" />
+                  Reset
+                </Button>
+                
                 <Button
-                  onClick={resetTest}
+                  onClick={toggleFocusMode}
                   variant="outline"
-                  className="gap-2 px-8 py-3 text-lg font-semibold border-2 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300 hover:shadow-lg hover:scale-105"
+                  className="gap-2"
                 >
-                  <RotateCcw className="w-5 h-5" />
-                  {isComplete ? "Try Again" : "Reset Test"}
+                  <Eye className="w-4 h-4" />
+                  Focus Mode
                 </Button>
               </div>
               
               {/* Completion message */}
               {isComplete && (
-                <div className="text-center p-6 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl border border-primary/30 shadow-lg animate-fade-in">
-                  <div className="text-2xl font-bold text-primary mb-3">
-                    {isTimeUp ? "⏰ Time's up!" : "🎉 Congratulations! You completed the test."}
+                <div className="text-center p-6 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
+                  <div className="text-xl font-bold text-gray-800 mb-2">
+                    {isTimeUp ? "⏰ Time's up!" : "🎉 Test Complete!"}
                   </div>
-                  <div className="text-lg text-muted-foreground">
-                    Your final speed: <span className="font-bold text-primary">{wpm} WPM</span> with{' '}
-                    <span className="font-bold text-primary">{accuracy}% accuracy</span>
+                  <div className="text-gray-600">
+                    Final speed: <span className="font-semibold text-blue-600">{wpm} WPM</span> | 
+                    Accuracy: <span className="font-semibold text-green-600">{accuracy}%</span>
                   </div>
-                  <div className="mt-4 text-sm text-muted-foreground">
-                    {isTimeUp ? 
-                      `You typed ${userInput.length} characters out of ${currentText.length} in ${timeLimit} seconds!` :
-                      (wpm >= 60 ? "🔥 Excellent typing speed!" : 
-                       wpm >= 40 ? "👍 Good typing speed!" : 
-                       wpm >= 25 ? "📈 Keep practicing!" : 
-                       "🚀 Room for improvement!")
-                    }
-                  </div>
+                  {monkeyMode && (
+                    <div className="mt-2 text-sm text-amber-600">
+                      🐵 Banana count: {Math.floor(wpm / 10)} bananas!
+                    </div>
+                  )}
                 </div>
               )}
-            </CardContent>
-          </Card>
-          
-          {/* Instructions */}
-          <Card className="border-0 bg-gradient-to-br from-muted/20 to-muted/10 shadow-card">
-            <CardContent className="p-6">
-              <div className="text-center text-muted-foreground max-w-3xl mx-auto">
-                <h3 className="text-lg font-semibold mb-3 text-foreground">How to use:</h3>
-                <div className="grid md:grid-cols-3 gap-4 text-sm">
-                  <div className="flex items-center justify-center gap-2">
-                    <span className="w-4 h-4 bg-typing-correct rounded-full"></span>
-                    <span>Correct characters appear in <span className="text-typing-correct font-semibold">green</span></span>
-                  </div>
-                  <div className="flex items-center justify-center gap-2">
-                    <span className="w-4 h-4 bg-typing-incorrect rounded-full"></span>
-                    <span>Incorrect characters appear in <span className="text-typing-incorrect font-semibold">red</span></span>
-                  </div>
-                  <div className="flex items-center justify-center gap-2">
-                    <span className="w-4 h-4 bg-typing-current rounded-full animate-pulse"></span>
-                    <span>Current character is <span className="text-typing-current font-semibold">highlighted</span></span>
-                  </div>
-                </div>
-              </div>
             </CardContent>
           </Card>
         </div>
       </div>
 
-      <footer style={{ textAlign: "center", marginTop: "2rem", color: "#888" }}>
-      By Menelik Admasu
-    </footer>
+      {/* Optional Sidebar Ad */}
+      {showAds && (
+        <div className="fixed right-4 top-1/2 transform -translate-y-1/2 w-48 bg-white rounded-lg shadow-lg p-4 border">
+          <div className="text-center">
+            <Trophy className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
+            <div className="text-sm font-semibold text-gray-800 mb-2">
+              Typing Challenge
+            </div>
+            <div className="text-xs text-gray-600 mb-3">
+              Join daily challenges and compete with others!
+            </div>
+            <Button size="sm" className="w-full text-xs">
+              Join Now
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowAds(false)}
+              className="mt-2 text-xs"
+            >
+              Hide Ads
+            </Button>
+          </div>
+        </div>
+      )}
+      
+      <footer className="text-center py-4 text-sm text-gray-500">
+        By Menelik Admasu
+      </footer>
     </div>
   );
-  
- 
 }

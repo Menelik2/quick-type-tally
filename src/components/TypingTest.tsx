@@ -48,6 +48,8 @@ export default function TypingTest() {
   const [monkeyMode, setMonkeyMode] = useState(false);
   const [streak, setStreak] = useState(0);
   const [bestWpm, setBestWpm] = useState(0);
+  const [errors, setErrors] = useState(0);
+  const [correctChars, setCorrectChars] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   
   const currentText = monkeyMode ? 
@@ -89,14 +91,19 @@ export default function TypingTest() {
       setBestWpm(currentWpm);
     }
     
-    // Calculate accuracy
-    let correctChars = 0;
+    // Calculate accuracy and track errors/correct characters
+    let correctCharsCount = 0;
+    let errorsCount = 0;
     for (let i = 0; i < userInput.length; i++) {
       if (userInput[i] === currentText[i]) {
-        correctChars++;
+        correctCharsCount++;
+      } else {
+        errorsCount++;
       }
     }
-    const currentAccuracy = userInput.length > 0 ? Math.round((correctChars / userInput.length) * 100) : 100;
+    setCorrectChars(correctCharsCount);
+    setErrors(errorsCount);
+    const currentAccuracy = userInput.length > 0 ? Math.round((correctCharsCount / userInput.length) * 100) : 100;
     setAccuracy(currentAccuracy);
     
     // Update streak
@@ -143,6 +150,8 @@ export default function TypingTest() {
     setWpm(0);
     setAccuracy(100);
     setStreak(0);
+    setErrors(0);
+    setCorrectChars(0);
     setRemainingTime(timeLimit);
     setCurrentTextIndex(monkeyMode ? 
       Math.floor(Math.random() * MONKEY_PHRASES.length) : 
@@ -336,11 +345,13 @@ export default function TypingTest() {
           </div>
           
           {/* Stats Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
             {[
               { label: "WPM", value: wpm, icon: Zap, color: "from-blue-500 to-indigo-600" },
               { label: "Accuracy", value: `${accuracy}%`, icon: Target, color: accuracy >= 95 ? "from-green-500 to-emerald-600" : accuracy >= 80 ? "from-yellow-500 to-amber-600" : "from-red-500 to-rose-600" },
               { label: "Time", value: remainingTime, icon: Clock, color: remainingTime <= 10 ? "from-red-500 to-rose-600" : "from-purple-500 to-violet-600" },
+              { label: "Errors", value: errors, icon: Target, color: "from-red-500 to-rose-600" },
+              { label: "Correct", value: correctChars, icon: Target, color: "from-green-500 to-emerald-600" },
               { label: "Streak", value: streak, icon: Zap, color: "from-orange-500 to-amber-600" },
               { label: "Best", value: bestWpm, icon: Trophy, color: "from-yellow-500 to-amber-600" }
             ].map((stat, index) => (

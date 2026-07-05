@@ -48,6 +48,8 @@ export default function TypingTest() {
   const [monkeyMode, setMonkeyMode] = useState(false);
   const [streak, setStreak] = useState(0);
   const [bestWpm, setBestWpm] = useState(0);
+  const [errors, setErrors] = useState(0);
+  const [correctChars, setCorrectChars] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   
   const currentText = monkeyMode ? 
@@ -89,14 +91,19 @@ export default function TypingTest() {
       setBestWpm(currentWpm);
     }
     
-    // Calculate accuracy
-    let correctChars = 0;
+    // Calculate accuracy, correct chars, and errors
+    let correctCount = 0;
+    let errorCount = 0;
     for (let i = 0; i < userInput.length; i++) {
       if (userInput[i] === currentText[i]) {
-        correctChars++;
+        correctCount++;
+      } else {
+        errorCount++;
       }
     }
-    const currentAccuracy = userInput.length > 0 ? Math.round((correctChars / userInput.length) * 100) : 100;
+    setCorrectChars(correctCount);
+    setErrors(errorCount);
+    const currentAccuracy = userInput.length > 0 ? Math.round((correctCount / userInput.length) * 100) : 100;
     setAccuracy(currentAccuracy);
     
     // Update streak
@@ -143,6 +150,8 @@ export default function TypingTest() {
     setWpm(0);
     setAccuracy(100);
     setStreak(0);
+    setErrors(0);
+    setCorrectChars(0);
     setRemainingTime(timeLimit);
     setCurrentTextIndex(monkeyMode ? 
       Math.floor(Math.random() * MONKEY_PHRASES.length) : 

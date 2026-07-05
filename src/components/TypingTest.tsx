@@ -58,7 +58,7 @@ export default function TypingTest() {
   
   // Timer countdown effect
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval>;
     
     if (startTime && !isComplete && !isTimeUp) {
       interval = setInterval(() => {
@@ -319,14 +319,14 @@ export default function TypingTest() {
           />
           
           {/* Stats Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
             <Card className="text-center border-0 shadow-sm">
               <CardContent className="p-4">
                 <div className="text-2xl font-bold text-blue-600">{wpm}</div>
                 <div className="text-xs text-muted-foreground">WPM</div>
               </CardContent>
             </Card>
-            
+
             <Card className="text-center border-0 shadow-sm">
               <CardContent className="p-4">
                 <div className={`text-2xl font-bold ${accuracy >= 95 ? 'text-green-600' : accuracy >= 80 ? 'text-yellow-600' : 'text-red-600'}`}>
@@ -335,21 +335,35 @@ export default function TypingTest() {
                 <div className="text-xs text-muted-foreground">Accuracy</div>
               </CardContent>
             </Card>
-            
+
             <Card className="text-center border-0 shadow-sm">
               <CardContent className="p-4">
                 <div className="text-2xl font-bold text-purple-600">{remainingTime}</div>
                 <div className="text-xs text-muted-foreground">Time</div>
               </CardContent>
             </Card>
-            
+
+            <Card className="text-center border-0 shadow-sm">
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold text-green-600">{correctChars}</div>
+                <div className="text-xs text-muted-foreground">Correct</div>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center border-0 shadow-sm">
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold text-red-600">{errors}</div>
+                <div className="text-xs text-muted-foreground">Errors</div>
+              </CardContent>
+            </Card>
+
             <Card className="text-center border-0 shadow-sm">
               <CardContent className="p-4">
                 <div className="text-2xl font-bold text-orange-600">{streak}</div>
                 <div className="text-xs text-muted-foreground">Streak</div>
               </CardContent>
             </Card>
-            
+
             <Card className="text-center border-0 shadow-sm">
               <CardContent className="p-4">
                 <div className="text-2xl font-bold text-amber-600">{bestWpm}</div>

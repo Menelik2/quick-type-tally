@@ -48,6 +48,8 @@ export default function TypingTest() {
   const [monkeyMode, setMonkeyMode] = useState(false);
   const [streak, setStreak] = useState(0);
   const [bestWpm, setBestWpm] = useState(0);
+  const [errors, setErrors] = useState(0);
+  const [correctChars, setCorrectChars] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   
   const currentText = monkeyMode ? 
@@ -56,7 +58,7 @@ export default function TypingTest() {
   
   // Timer countdown effect
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval>;
     
     if (startTime && !isComplete && !isTimeUp) {
       interval = setInterval(() => {
@@ -89,14 +91,19 @@ export default function TypingTest() {
       setBestWpm(currentWpm);
     }
     
-    // Calculate accuracy
-    let correctChars = 0;
+    // Calculate accuracy, correct chars, and errors
+    let correctCount = 0;
+    let errorCount = 0;
     for (let i = 0; i < userInput.length; i++) {
       if (userInput[i] === currentText[i]) {
-        correctChars++;
+        correctCount++;
+      } else {
+        errorCount++;
       }
     }
-    const currentAccuracy = userInput.length > 0 ? Math.round((correctChars / userInput.length) * 100) : 100;
+    setCorrectChars(correctCount);
+    setErrors(errorCount);
+    const currentAccuracy = userInput.length > 0 ? Math.round((correctCount / userInput.length) * 100) : 100;
     setAccuracy(currentAccuracy);
     
     // Update streak
@@ -143,6 +150,8 @@ export default function TypingTest() {
     setWpm(0);
     setAccuracy(100);
     setStreak(0);
+    setErrors(0);
+    setCorrectChars(0);
     setRemainingTime(timeLimit);
     setCurrentTextIndex(monkeyMode ? 
       Math.floor(Math.random() * MONKEY_PHRASES.length) : 
@@ -310,14 +319,14 @@ export default function TypingTest() {
           />
           
           {/* Stats Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
             <Card className="text-center border-0 shadow-sm">
               <CardContent className="p-4">
                 <div className="text-2xl font-bold text-blue-600">{wpm}</div>
                 <div className="text-xs text-muted-foreground">WPM</div>
               </CardContent>
             </Card>
-            
+
             <Card className="text-center border-0 shadow-sm">
               <CardContent className="p-4">
                 <div className={`text-2xl font-bold ${accuracy >= 95 ? 'text-green-600' : accuracy >= 80 ? 'text-yellow-600' : 'text-red-600'}`}>
@@ -326,21 +335,35 @@ export default function TypingTest() {
                 <div className="text-xs text-muted-foreground">Accuracy</div>
               </CardContent>
             </Card>
-            
+
             <Card className="text-center border-0 shadow-sm">
               <CardContent className="p-4">
                 <div className="text-2xl font-bold text-purple-600">{remainingTime}</div>
                 <div className="text-xs text-muted-foreground">Time</div>
               </CardContent>
             </Card>
-            
+
+            <Card className="text-center border-0 shadow-sm">
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold text-green-600">{correctChars}</div>
+                <div className="text-xs text-muted-foreground">Correct</div>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center border-0 shadow-sm">
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold text-red-600">{errors}</div>
+                <div className="text-xs text-muted-foreground">Errors</div>
+              </CardContent>
+            </Card>
+
             <Card className="text-center border-0 shadow-sm">
               <CardContent className="p-4">
                 <div className="text-2xl font-bold text-orange-600">{streak}</div>
                 <div className="text-xs text-muted-foreground">Streak</div>
               </CardContent>
             </Card>
-            
+
             <Card className="text-center border-0 shadow-sm">
               <CardContent className="p-4">
                 <div className="text-2xl font-bold text-amber-600">{bestWpm}</div>

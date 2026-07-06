@@ -173,7 +173,7 @@ export default function ClassicMode({ timeLimit: initialTimeLimit, monkeyMode: i
             <div>WPM: {wpm}</div>
             <div>Time: {remainingTime}s</div>
             <div>Accuracy: {accuracy}%</div>
-            <Button variant= variant="ghost" size="sm" onClick={toggleFocusMode} className="text-gray-400 hover:text-white">
+            <Button variant="ghost" size="sm" onClick={toggleFocusMode} className="text-gray-400 hover:text-white">
               <Eye className="w-4 h-4" />
             </Button>
           </div>

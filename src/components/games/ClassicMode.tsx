@@ -60,6 +60,18 @@ export default function ClassicMode({ timeLimit: initialTimeLimit, monkeyMode: i
   const [errors, setErrors] = useState(0);
   const [correctChars, setCorrectChars] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const lastTextIndexRef = useRef<number>(-1);
+
+  const pickNextIndex = (mode: boolean) => {
+    const pool = mode ? MONKEY_PHRASES : SAMPLE_TEXTS;
+    if (pool.length <= 1) return 0;
+    let next = Math.floor(Math.random() * pool.length);
+    while (next === lastTextIndexRef.current) {
+      next = Math.floor(Math.random() * pool.length);
+    }
+    lastTextIndexRef.current = next;
+    return next;
+  };
 
   const currentText = monkeyMode
     ? MONKEY_PHRASES[currentTextIndex % MONKEY_PHRASES.length].repeat(3)
@@ -135,9 +147,7 @@ export default function ClassicMode({ timeLimit: initialTimeLimit, monkeyMode: i
     setErrors(0);
     setCorrectChars(0);
     setRemainingTime(limit ?? timeLimit);
-    setCurrentTextIndex(monkeyMode
-      ? Math.floor(Math.random() * MONKEY_PHRASES.length)
-      : Math.floor(Math.random() * SAMPLE_TEXTS.length));
+    setCurrentTextIndex(pickNextIndex(monkeyMode));
     inputRef.current?.focus();
   };
 
@@ -162,8 +172,42 @@ export default function ClassicMode({ timeLimit: initialTimeLimit, monkeyMode: i
 
   useEffect(() => {
     inputRef.current?.focus();
-    setCurrentTextIndex(Math.floor(Math.random() * SAMPLE_TEXTS.length));
+    const initial = pickNextIndex(initialMonkeyMode);
+    setCurrentTextIndex(initial);
   }, []);
+
+  // Keyboard shortcuts: Tab/Esc to reset, Ctrl/Cmd+M toggle mode, Ctrl/Cmd+F focus
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        resetTest();
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'm') {
+        e.preventDefault();
+        setMonkeyMode(prev => {
+          const next = !prev;
+          setUserInput('');
+          setStartTime(null);
+          setIsComplete(false);
+          setIsTimeUp(false);
+          setWpm(0);
+          setAccuracy(100);
+          setStreak(0);
+          setErrors(0);
+          setCorrectChars(0);
+          setRemainingTime(timeLimit);
+          setCurrentTextIndex(pickNextIndex(next));
+          inputRef.current?.focus();
+          return next;
+        });
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
+        e.preventDefault();
+        setFocusMode(f => !f);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [timeLimit]);
 
   if (focusMode && startTime && !isComplete) {
     return (
@@ -196,15 +240,22 @@ export default function ClassicMode({ timeLimit: initialTimeLimit, monkeyMode: i
           ))}
         </div>
         <div className="flex gap-2">
-          <Button variant={focusMode ? "default" : "outline"} size="sm" onClick={toggleFocusMode} className="gap-2">
+          <Button variant={!monkeyMode ? "default" : "outline"} size="sm" onClick={() => { if (monkeyMode) { setMonkeyMode(false); lastTextIndexRef.current = -1; setCurrentTextIndex(pickNextIndex(false)); resetTest(); } }} className="gap-2" title="Random paragraphs">
+            <Keyboard className="w-4 h-4" />
+            Paragraphs
+          </Button>
+          <Button variant={monkeyMode ? "default" : "outline"} size="sm" onClick={() => { if (!monkeyMode) { setMonkeyMode(true); lastTextIndexRef.current = -1; setCurrentTextIndex(pickNextIndex(true)); resetTest(); } }} className="gap-2" title="Fun phrases">
+            <Activity className="w-4 h-4" />
+            Fun Phrases
+          </Button>
+          <Button variant={focusMode ? "default" : "outline"} size="sm" onClick={toggleFocusMode} className="gap-2" title="Focus mode (Ctrl+F)">
             {focusMode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             Focus
           </Button>
-          <Button variant={monkeyMode ? "default" : "outline"} size="sm" onClick={() => { setMonkeyMode(!monkeyMode); resetTest(); }} className="gap-2">
-            <Activity className="w-4 h-4" />
-            Monkey
-          </Button>
         </div>
+      </div>
+      <div className="text-center text-xs text-gray-500">
+        Shortcuts: <kbd className="px-1.5 py-0.5 bg-gray-100 border rounded">Esc</kbd> reset · <kbd className="px-1.5 py-0.5 bg-gray-100 border rounded">Ctrl</kbd>+<kbd className="px-1.5 py-0.5 bg-gray-100 border rounded">M</kbd> toggle mode · <kbd className="px-1.5 py-0.5 bg-gray-100 border rounded">Ctrl</kbd>+<kbd className="px-1.5 py-0.5 bg-gray-100 border rounded">F</kbd> focus
       </div>
 
       <Progress value={(userInput.length / currentText.length) * 100} className="h-2" />

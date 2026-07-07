@@ -1,8 +1,10 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Keyboard, Zap, Rocket } from 'lucide-react';
+import { Keyboard, Zap, Rocket, Circle, Shield } from 'lucide-react';
 import ClassicMode from './games/ClassicMode';
 import WordSprint from './games/WordSprint';
 import FallingWords from './games/FallingWords';
+import BubblePop from './games/BubblePop';
+import WordDefense from './games/WordDefense';
 
 export default function TypingTest() {
   return (
@@ -19,31 +21,43 @@ export default function TypingTest() {
 
           {/* Game Tabs */}
           <Tabs defaultValue="classic" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 max-w-md mx-auto">
+            <TabsList className="grid w-full grid-cols-5 max-w-3xl mx-auto">
               <TabsTrigger value="classic" className="gap-2">
                 <Keyboard className="w-4 h-4" />
-                Classic
+                <span className="hidden sm:inline">Classic</span>
               </TabsTrigger>
               <TabsTrigger value="sprint" className="gap-2">
                 <Zap className="w-4 h-4" />
-                Sprint
+                <span className="hidden sm:inline">Sprint</span>
               </TabsTrigger>
               <TabsTrigger value="falling" className="gap-2">
                 <Rocket className="w-4 h-4" />
-                Falling
+                <span className="hidden sm:inline">Falling</span>
+              </TabsTrigger>
+              <TabsTrigger value="bubble" className="gap-2">
+                <Circle className="w-4 h-4" />
+                <span className="hidden sm:inline">Bubbles</span>
+              </TabsTrigger>
+              <TabsTrigger value="defense" className="gap-2">
+                <Shield className="w-4 h-4" />
+                <span className="hidden sm:inline">Defense</span>
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="classic" className="mt-6">
               <ClassicMode timeLimit={60} monkeyMode={false} />
             </TabsContent>
-
             <TabsContent value="sprint" className="mt-6">
               <WordSprint initialTimeLimit={60} />
             </TabsContent>
-
             <TabsContent value="falling" className="mt-6">
               <FallingWords />
+            </TabsContent>
+            <TabsContent value="bubble" className="mt-6">
+              <BubblePop />
+            </TabsContent>
+            <TabsContent value="defense" className="mt-6">
+              <WordDefense />
             </TabsContent>
           </Tabs>
         </div>

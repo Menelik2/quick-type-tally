@@ -60,6 +60,18 @@ export default function ClassicMode({ timeLimit: initialTimeLimit, monkeyMode: i
   const [errors, setErrors] = useState(0);
   const [correctChars, setCorrectChars] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const lastTextIndexRef = useRef<number>(-1);
+
+  const pickNextIndex = (mode: boolean) => {
+    const pool = mode ? MONKEY_PHRASES : SAMPLE_TEXTS;
+    if (pool.length <= 1) return 0;
+    let next = Math.floor(Math.random() * pool.length);
+    while (next === lastTextIndexRef.current) {
+      next = Math.floor(Math.random() * pool.length);
+    }
+    lastTextIndexRef.current = next;
+    return next;
+  };
 
   const currentText = monkeyMode
     ? MONKEY_PHRASES[currentTextIndex % MONKEY_PHRASES.length].repeat(3)

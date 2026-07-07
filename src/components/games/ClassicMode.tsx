@@ -240,15 +240,22 @@ export default function ClassicMode({ timeLimit: initialTimeLimit, monkeyMode: i
           ))}
         </div>
         <div className="flex gap-2">
-          <Button variant={focusMode ? "default" : "outline"} size="sm" onClick={toggleFocusMode} className="gap-2">
+          <Button variant={!monkeyMode ? "default" : "outline"} size="sm" onClick={() => { if (monkeyMode) { setMonkeyMode(false); lastTextIndexRef.current = -1; setCurrentTextIndex(pickNextIndex(false)); resetTest(); } }} className="gap-2" title="Random paragraphs">
+            <Keyboard className="w-4 h-4" />
+            Paragraphs
+          </Button>
+          <Button variant={monkeyMode ? "default" : "outline"} size="sm" onClick={() => { if (!monkeyMode) { setMonkeyMode(true); lastTextIndexRef.current = -1; setCurrentTextIndex(pickNextIndex(true)); resetTest(); } }} className="gap-2" title="Fun phrases">
+            <Activity className="w-4 h-4" />
+            Fun Phrases
+          </Button>
+          <Button variant={focusMode ? "default" : "outline"} size="sm" onClick={toggleFocusMode} className="gap-2" title="Focus mode (Ctrl+F)">
             {focusMode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             Focus
           </Button>
-          <Button variant={monkeyMode ? "default" : "outline"} size="sm" onClick={() => { setMonkeyMode(!monkeyMode); resetTest(); }} className="gap-2">
-            <Activity className="w-4 h-4" />
-            Monkey
-          </Button>
         </div>
+      </div>
+      <div className="text-center text-xs text-gray-500">
+        Shortcuts: <kbd className="px-1.5 py-0.5 bg-gray-100 border rounded">Esc</kbd> reset · <kbd className="px-1.5 py-0.5 bg-gray-100 border rounded">Ctrl</kbd>+<kbd className="px-1.5 py-0.5 bg-gray-100 border rounded">M</kbd> toggle mode · <kbd className="px-1.5 py-0.5 bg-gray-100 border rounded">Ctrl</kbd>+<kbd className="px-1.5 py-0.5 bg-gray-100 border rounded">F</kbd> focus
       </div>
 
       <Progress value={(userInput.length / currentText.length) * 100} className="h-2" />

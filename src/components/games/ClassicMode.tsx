@@ -172,8 +172,42 @@ export default function ClassicMode({ timeLimit: initialTimeLimit, monkeyMode: i
 
   useEffect(() => {
     inputRef.current?.focus();
-    setCurrentTextIndex(Math.floor(Math.random() * SAMPLE_TEXTS.length));
+    const initial = pickNextIndex(initialMonkeyMode);
+    setCurrentTextIndex(initial);
   }, []);
+
+  // Keyboard shortcuts: Tab/Esc to reset, Ctrl/Cmd+M toggle mode, Ctrl/Cmd+F focus
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        resetTest();
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'm') {
+        e.preventDefault();
+        setMonkeyMode(prev => {
+          const next = !prev;
+          setUserInput('');
+          setStartTime(null);
+          setIsComplete(false);
+          setIsTimeUp(false);
+          setWpm(0);
+          setAccuracy(100);
+          setStreak(0);
+          setErrors(0);
+          setCorrectChars(0);
+          setRemainingTime(timeLimit);
+          setCurrentTextIndex(pickNextIndex(next));
+          inputRef.current?.focus();
+          return next;
+        });
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
+        e.preventDefault();
+        setFocusMode(f => !f);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [timeLimit]);
 
   if (focusMode && startTime && !isComplete) {
     return (

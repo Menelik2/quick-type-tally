@@ -147,9 +147,7 @@ export default function ClassicMode({ timeLimit: initialTimeLimit, monkeyMode: i
     setErrors(0);
     setCorrectChars(0);
     setRemainingTime(limit ?? timeLimit);
-    setCurrentTextIndex(monkeyMode
-      ? Math.floor(Math.random() * MONKEY_PHRASES.length)
-      : Math.floor(Math.random() * SAMPLE_TEXTS.length));
+    setCurrentTextIndex(pickNextIndex(monkeyMode));
     inputRef.current?.focus();
   };
 

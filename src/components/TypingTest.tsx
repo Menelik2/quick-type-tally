@@ -9,8 +9,8 @@ import WordDefense from './games/WordDefense';
 export default function TypingTest() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      <div className="container mx-auto px-4 py-8">
-        <div className="w-full max-w-6xl mx-auto space-y-6">
+      <div className="w-full px-6 lg:px-12 xl:px-20 py-8">
+        <div className="w-full max-w-[1600px] mx-auto space-y-6">
           {/* Header */}
           <div className="text-center space-y-4">
             <div className="flex items-center justify-center gap-3">

@@ -122,3 +122,32 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  @keyframes pop-burst {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(1.8); opacity: 0; }
+  }
+  @keyframes hit-flash {
+    0%, 100% { transform: scale(1); filter: brightness(1); }
+    50% { transform: scale(1.25); filter: brightness(1.8); }
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+  @keyframes float-up {
+    0% { transform: translate(-50%, 0); opacity: 1; }
+    100% { transform: translate(-50%, -60px); opacity: 0; }
+  }
+  @keyframes streak-glow {
+    0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0); }
+    50% { box-shadow: 0 0 40px 8px hsl(45 93% 60% / 0.6); }
+  }
+  .animate-pop-burst { animation: pop-burst 0.4s ease-out forwards; }
+  .animate-hit-flash { animation: hit-flash 0.25s ease-out; }
+  .animate-shake { animation: shake 0.3s ease-in-out; }
+  .animate-float-up { animation: float-up 0.9s ease-out forwards; }
+  .animate-streak-glow { animation: streak-glow 0.8s ease-in-out; }
+}

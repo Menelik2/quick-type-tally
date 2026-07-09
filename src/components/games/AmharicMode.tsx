@@ -3,31 +3,71 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { RotateCcw, Languages } from 'lucide-react';
 
-const AMHARIC_WORDS = [
-  'ሰላም', 'እንደምን', 'አመሰግናለሁ', 'ኢትዮጵያ', 'አዲስ', 'አበባ', 'ቡና', 'እንጀራ',
-  'ወዳጅ', 'ቤተሰብ', 'ትምህርት', 'መጽሐፍ', 'ተማሪ', 'መምህር', 'ጤና', 'ደስታ',
-  'ፍቅር', 'ተስፋ', 'ሕይወት', 'ጊዜ', 'ቀን', 'ሌሊት', 'ጠዋት', 'ማታ',
-  'ውሃ', 'እሳት', 'ምድር', 'ሰማይ', 'ፀሐይ', 'ጨረቃ', 'ኮከብ', 'ዝናብ',
-  'ተራራ', 'ወንዝ', 'ባህር', 'ጫካ', 'አበባ', 'ዛፍ', 'እንስሳ', 'ወፍ',
+type Mode = 'words' | 'phrases';
+type Difficulty = 'easy' | 'medium' | 'hard';
+
+// Easy: short common words (2-3 syllables)
+const WORDS_EASY = [
+  'ሰላም', 'ውሃ', 'እሳት', 'ቀን', 'ሌሊት', 'ቡና', 'ወፍ', 'ዛፍ', 'አበባ', 'ጨው',
+  'እናት', 'አባት', 'ልጅ', 'ቤት', 'መኪና', 'ጠዋት', 'ማታ', 'ጤና', 'ደስታ', 'ፍቅር',
 ];
 
-const AMHARIC_PHRASES = [
-  'ሰላም ለዓለም ሁሉ ይሁን።',
+// Medium: longer everyday words
+const WORDS_MEDIUM = [
+  'እንደምን', 'አመሰግናለሁ', 'ኢትዮጵያ', 'ተማሪ', 'መምህር', 'መጽሐፍ', 'ትምህርት',
+  'ወዳጅ', 'ቤተሰብ', 'ጊዜ', 'ተስፋ', 'ሕይወት', 'ተራራ', 'ወንዝ', 'ባህር', 'ጫካ',
+  'ፀሐይ', 'ጨረቃ', 'ኮከብ', 'ዝናብ', 'ሰማይ', 'ምድር', 'እንስሳ', 'ጓደኝነት',
+];
+
+// Hard: rare / compound / longer vocabulary
+const WORDS_HARD = [
+  'ዲሞክራሲ', 'ሕገመንግስት', 'ጠቅላይሚኒስትር', 'ፕሬዚዳንት', 'ኤሌክትሮኒክስ',
+  'ኮምፒውተር', 'ቴክኖሎጂ', 'አካባቢ', 'ዩኒቨርሲቲ', 'ፍልስፍና', 'ሥነጽሑፍ',
+  'ኢኮኖሚ', 'ማኅበረሰብ', 'ባህላዊ', 'ታሪካዊ', 'መንፈሳዊ', 'ሳይንሳዊ',
+  'ትብብር', 'ልማት', 'እድገት', 'ተግባራዊ', 'ኃላፊነት', 'ጤናማነት',
+];
+
+// Short phrases
+const PHRASES_EASY = [
+  'ሰላም ነው።',
+  'እንዴት ነህ?',
+  'ደህና ነኝ።',
+  'ስምህ ማን ነው?',
+  'ቡና እወዳለሁ።',
+  'ዛሬ ጥሩ ቀን ነው።',
+  'እናቴን እወዳለሁ።',
+  'ውሃ ጠጣ።',
+];
+
+// Medium sentences
+const PHRASES_MEDIUM = [
   'ኢትዮጵያ የታሪክ ሀገር ናት።',
   'መማር በጣም ጠቃሚ ነው።',
-  'አዲስ አበባ የኢትዮጵያ ዋና ከተማ ናት።',
   'ቡና የኢትዮጵያ ባህላዊ መጠጥ ነው።',
   'እንጀራ የተለመደ የኢትዮጵያ ምግብ ነው።',
-  'ትዕግስት ጣፋጭ ፍሬ አለው።',
-  'እውቀት ኃይል ነው።',
   'ጓደኝነት እንደ ወርቅ ውድ ነው።',
   'ፀሐይ በምስራቅ ትወጣለች።',
+  'እውቀት ኃይል ነው።',
+  'ትዕግስት ጣፋጭ ፍሬ አለው።',
 ];
 
-type Mode = 'words' | 'phrases';
+// Long / complex passages
+const PHRASES_HARD = [
+  'ኢትዮጵያ ከጥንት ጀምሮ የራሷ ፊደል፣ የራሷ ታሪክና የራሷ ባህል ያላት ጥንታዊ ሀገር ናት።',
+  'ትምህርት የሰው ልጅ አእምሮን የሚያበራ፣ ሕይወትን የሚቀይርና ማኅበረሰብን የሚያሳድግ ኃያል መሣሪያ ነው።',
+  'የአዲስ አበባ ከተማ የአፍሪካ ኅብረት መቀመጫ በመሆኗ የዲፕሎማሲ ማዕከል ሆና ታገለግላለች።',
+  'ቡና በኢትዮጵያ የተገኘ ሲሆን ዛሬ በዓለም ዙሪያ በሚሊዮን ለሚቆጠሩ ሰዎች ተወዳጅ መጠጥ ሆኗል።',
+  'ጠንክሮ የሚሠራ፣ ትዕግስት ያለውና እውነትን የሚናገር ሰው በሕይወቱ ስኬታማ ይሆናል።',
+];
+
+const POOLS: Record<Mode, Record<Difficulty, string[]>> = {
+  words: { easy: WORDS_EASY, medium: WORDS_MEDIUM, hard: WORDS_HARD },
+  phrases: { easy: PHRASES_EASY, medium: PHRASES_MEDIUM, hard: PHRASES_HARD },
+};
 
 export default function AmharicMode() {
   const [mode, setMode] = useState<Mode>('words');
+  const [difficulty, setDifficulty] = useState<Difficulty>('easy');
   const [target, setTarget] = useState('');
   const [userInput, setUserInput] = useState('');
   const [startTime, setStartTime] = useState<number | null>(null);
@@ -35,39 +75,27 @@ export default function AmharicMode() {
   const [completed, setCompleted] = useState(0);
   const [errors, setErrors] = useState(0);
   const [totalTyped, setTotalTyped] = useState(0);
-  const lastIndexRef = useRef(-1);
+  const lastTextRef = useRef<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const pickNext = useCallback((m: Mode) => {
-    const pool = m === 'words' ? AMHARIC_WORDS : AMHARIC_PHRASES;
-    let idx = Math.floor(Math.random() * pool.length);
-    if (pool.length > 1 && idx === lastIndexRef.current) {
-      idx = (idx + 1) % pool.length;
+  const pickNext = useCallback((m: Mode, d: Difficulty) => {
+    const pool = POOLS[m][d];
+    if (pool.length === 0) return '';
+    if (pool.length === 1) {
+      lastTextRef.current = pool[0];
+      return pool[0];
     }
-    lastIndexRef.current = idx;
-    return pool[idx];
+    let choice = pool[Math.floor(Math.random() * pool.length)];
+    let guard = 0;
+    while (choice === lastTextRef.current && guard < 10) {
+      choice = pool[Math.floor(Math.random() * pool.length)];
+      guard++;
+    }
+    lastTextRef.current = choice;
+    return choice;
   }, []);
 
-  const reset = useCallback((m: Mode = mode) => {
-    setTarget(pickNext(m));
-    setUserInput('');
-    setStartTime(null);
-    setEndTime(null);
-    setCompleted(0);
-    setErrors(0);
-    setTotalTyped(0);
-    setTimeout(() => inputRef.current?.focus(), 0);
-  }, [mode, pickNext]);
-
-  useEffect(() => {
-    reset(mode);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const changeMode = (m: Mode) => {
-    setMode(m);
-    lastIndexRef.current = -1;
-    setTarget(pickNext(m));
+  const resetStats = () => {
     setUserInput('');
     setStartTime(null);
     setEndTime(null);
@@ -76,12 +104,36 @@ export default function AmharicMode() {
     setTotalTyped(0);
   };
 
+  const reset = useCallback((m: Mode = mode, d: Difficulty = difficulty) => {
+    setTarget(pickNext(m, d));
+    resetStats();
+    setTimeout(() => inputRef.current?.focus(), 0);
+  }, [mode, difficulty, pickNext]);
+
+  useEffect(() => {
+    reset(mode, difficulty);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const changeMode = (m: Mode) => {
+    setMode(m);
+    lastTextRef.current = '';
+    setTarget(pickNext(m, difficulty));
+    resetStats();
+  };
+
+  const changeDifficulty = (d: Difficulty) => {
+    setDifficulty(d);
+    lastTextRef.current = '';
+    setTarget(pickNext(mode, d));
+    resetStats();
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const v = e.target.value;
     if (endTime) return;
     if (!startTime && v.length > 0) setStartTime(Date.now());
 
-    // track new error at latest char
     if (v.length > userInput.length) {
       const i = v.length - 1;
       if (v[i] !== target[i]) setErrors((e) => e + 1);
@@ -91,8 +143,7 @@ export default function AmharicMode() {
 
     if (v === target) {
       setCompleted((c) => c + 1);
-      const next = pickNext(mode);
-      setTarget(next);
+      setTarget(pickNext(mode, difficulty));
       setUserInput('');
     }
   };
@@ -101,27 +152,45 @@ export default function AmharicMode() {
   const wpm = elapsedSec > 0 ? Math.round((totalTyped / 5) / (elapsedSec / 60)) : 0;
   const accuracy = totalTyped > 0 ? Math.max(0, Math.round(((totalTyped - errors) / totalTyped) * 100)) : 100;
 
+  const difficultyColor: Record<Difficulty, string> = {
+    easy: 'text-green-600',
+    medium: 'text-amber-600',
+    hard: 'text-red-600',
+  };
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-center gap-2">
+      <div className="flex items-center justify-center gap-2 flex-wrap">
         <Button size="sm" variant={mode === 'words' ? 'default' : 'outline'} onClick={() => changeMode('words')}>
           Words / ቃላት
         </Button>
         <Button size="sm" variant={mode === 'phrases' ? 'default' : 'outline'} onClick={() => changeMode('phrases')}>
           Phrases / ሐረጎች
         </Button>
+        <div className="w-px h-6 bg-gray-300 mx-2" />
+        {(['easy', 'medium', 'hard'] as Difficulty[]).map((d) => (
+          <Button
+            key={d}
+            size="sm"
+            variant={difficulty === d ? 'default' : 'outline'}
+            onClick={() => changeDifficulty(d)}
+          >
+            {d === 'easy' ? 'Easy / ቀላል' : d === 'medium' ? 'Medium / መካከለኛ' : 'Hard / ከባድ'}
+          </Button>
+        ))}
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         {[
           { label: 'WPM', value: wpm, color: 'text-blue-600' },
           { label: 'Accuracy', value: `${accuracy}%`, color: 'text-green-600' },
           { label: 'Completed', value: completed, color: 'text-purple-600' },
           { label: 'Errors', value: errors, color: 'text-red-600' },
+          { label: 'Level', value: difficulty, color: difficultyColor[difficulty] },
         ].map((s) => (
           <Card key={s.label} className="text-center border-0 shadow-sm">
             <CardContent className="p-4">
-              <div className={`text-2xl font-bold ${s.color}`}>{s.value}</div>
+              <div className={`text-2xl font-bold capitalize ${s.color}`}>{s.value}</div>
               <div className="text-xs text-muted-foreground">{s.label}</div>
             </CardContent>
           </Card>
@@ -167,7 +236,7 @@ export default function AmharicMode() {
           </div>
 
           <div className="flex justify-center gap-3">
-            <Button onClick={() => reset(mode)} variant="outline" className="gap-2">
+            <Button onClick={() => reset(mode, difficulty)} variant="outline" className="gap-2">
               <RotateCcw className="w-4 h-4" />
               New {mode === 'words' ? 'Word' : 'Phrase'}
             </Button>

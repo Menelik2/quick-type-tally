@@ -1,10 +1,11 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Keyboard, Zap, Rocket, Circle, Shield } from 'lucide-react';
+import { Keyboard, Zap, Rocket, Circle, Shield, Languages } from 'lucide-react';
 import ClassicMode from './games/ClassicMode';
 import WordSprint from './games/WordSprint';
 import FallingWords from './games/FallingWords';
 import BubblePop from './games/BubblePop';
 import WordDefense from './games/WordDefense';
+import AmharicMode from './games/AmharicMode';
 
 export default function TypingTest() {
   return (
@@ -21,7 +22,7 @@ export default function TypingTest() {
 
           {/* Game Tabs */}
           <Tabs defaultValue="classic" className="w-full">
-            <TabsList className="grid w-full grid-cols-5 max-w-3xl mx-auto">
+            <TabsList className="grid w-full grid-cols-6 max-w-4xl mx-auto">
               <TabsTrigger value="classic" className="gap-2">
                 <Keyboard className="w-4 h-4" />
                 <span className="hidden sm:inline">Classic</span>
@@ -42,6 +43,10 @@ export default function TypingTest() {
                 <Shield className="w-4 h-4" />
                 <span className="hidden sm:inline">Defense</span>
               </TabsTrigger>
+              <TabsTrigger value="amharic" className="gap-2">
+                <Languages className="w-4 h-4" />
+                <span className="hidden sm:inline">አማርኛ</span>
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="classic" className="mt-6">
@@ -58,6 +63,9 @@ export default function TypingTest() {
             </TabsContent>
             <TabsContent value="defense" className="mt-6">
               <WordDefense />
+            </TabsContent>
+            <TabsContent value="amharic" className="mt-6">
+              <AmharicMode />
             </TabsContent>
           </Tabs>
         </div>

@@ -1,11 +1,12 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Keyboard, Zap, Rocket, Circle, Shield, Languages } from 'lucide-react';
+import { Keyboard, Zap, Rocket, Circle, Shield, Languages, Banana } from 'lucide-react';
 import ClassicMode from './games/ClassicMode';
 import WordSprint from './games/WordSprint';
 import FallingWords from './games/FallingWords';
 import BubblePop from './games/BubblePop';
 import WordDefense from './games/WordDefense';
 import AmharicMode from './games/AmharicMode';
+import MonkeyMode from './games/MonkeyMode';
 
 export default function TypingTest() {
   return (
@@ -22,7 +23,7 @@ export default function TypingTest() {
 
           {/* Game Tabs */}
           <Tabs defaultValue="classic" className="w-full">
-            <TabsList className="grid w-full grid-cols-6 max-w-4xl mx-auto">
+            <TabsList className="grid w-full grid-cols-7 max-w-5xl mx-auto">
               <TabsTrigger value="classic" className="gap-2">
                 <Keyboard className="w-4 h-4" />
                 <span className="hidden sm:inline">Classic</span>
@@ -42,6 +43,10 @@ export default function TypingTest() {
               <TabsTrigger value="defense" className="gap-2">
                 <Shield className="w-4 h-4" />
                 <span className="hidden sm:inline">Defense</span>
+              </TabsTrigger>
+              <TabsTrigger value="monkey" className="gap-2">
+                <Banana className="w-4 h-4" />
+                <span className="hidden sm:inline">Monkey</span>
               </TabsTrigger>
               <TabsTrigger value="amharic" className="gap-2">
                 <Languages className="w-4 h-4" />
@@ -63,6 +68,9 @@ export default function TypingTest() {
             </TabsContent>
             <TabsContent value="defense" className="mt-6">
               <WordDefense />
+            </TabsContent>
+            <TabsContent value="monkey" className="mt-6">
+              <MonkeyMode />
             </TabsContent>
             <TabsContent value="amharic" className="mt-6">
               <AmharicMode />

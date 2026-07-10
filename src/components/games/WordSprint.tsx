@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { RotateCcw, Zap } from 'lucide-react';
+import { useGameRestart } from './GameShell';
 
 const WORD_BANK = [
   "apple", "bridge", "castle", "dragon", "eagle", "forest", "garden", "harbor", "island", "jungle",

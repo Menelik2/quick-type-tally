@@ -128,6 +128,8 @@ export default function WordDefense() {
     setTimeout(() => inputRef.current?.focus(), 50);
   }, []);
 
+  useGameRestart(() => startGame());
+
   useEffect(() => {
     if (!isPlaying || gameOver) return;
     const animate = (time: number) => {

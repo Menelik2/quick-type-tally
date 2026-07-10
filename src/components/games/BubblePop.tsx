@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { RotateCcw, Heart, Volume2, VolumeX, Trophy, Flame } from 'lucide-react';
 import { sfx } from '@/lib/sound';
+import { useGameRestart } from './GameShell';
 
 const WORD_BANK = [
   "bubble", "float", "pop", "rise", "sky", "cloud", "air", "wind", "blue", "soap",

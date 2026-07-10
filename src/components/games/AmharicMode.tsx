@@ -112,6 +112,8 @@ export default function AmharicMode() {
     setTimeout(() => inputRef.current?.focus(), 0);
   }, [mode, difficulty, pickNext]);
 
+  useGameRestart(() => reset());
+
   useEffect(() => {
     reset(mode, difficulty);
     // eslint-disable-next-line react-hooks/exhaustive-deps

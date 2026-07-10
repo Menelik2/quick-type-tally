@@ -152,6 +152,8 @@ export default function ClassicMode({ timeLimit: initialTimeLimit, monkeyMode: i
     inputRef.current?.focus();
   };
 
+  useGameRestart(() => resetTest());
+
   const toggleFocusMode = () => {
     setFocusMode(!focusMode);
   };

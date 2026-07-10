@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { RotateCcw, Languages } from 'lucide-react';
+import { useGameRestart } from './GameShell';
 
 type Mode = 'words' | 'phrases';
 type Difficulty = 'easy' | 'medium' | 'hard';
@@ -110,6 +111,8 @@ export default function AmharicMode() {
     resetStats();
     setTimeout(() => inputRef.current?.focus(), 0);
   }, [mode, difficulty, pickNext]);
+
+  useGameRestart(() => reset());
 
   useEffect(() => {
     reset(mode, difficulty);

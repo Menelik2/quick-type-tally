@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { RotateCcw, Shield, Volume2, VolumeX, Trophy, Skull } from 'lucide-react';
 import { sfx } from '@/lib/sound';
+import { useGameRestart } from './GameShell';
 
 const WORD_BANK = [
   "attack", "shield", "sword", "guard", "fort", "wall", "tower", "castle", "arrow", "spear",
@@ -126,6 +127,8 @@ export default function WordDefense() {
     prevInputRef.current = '';
     setTimeout(() => inputRef.current?.focus(), 50);
   }, []);
+
+  useGameRestart(() => startGame());
 
   useEffect(() => {
     if (!isPlaying || gameOver) return;

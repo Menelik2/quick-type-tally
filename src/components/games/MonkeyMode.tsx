@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { RotateCcw, Maximize2, Minimize2, Banana } from 'lucide-react';
+import { useGameRestart } from './GameShell';
 
 const MONKEY_WORDS = [
   'monkey', 'banana', 'jungle', 'swing', 'tree', 'vine', 'coconut', 'palm',
@@ -46,6 +47,8 @@ export default function MonkeyMode() {
     setFinished(false);
     setTimeout(() => hiddenInputRef.current?.focus(), 0);
   }, [duration]);
+
+  useGameRestart(() => reset());
 
   const changeDuration = (d: number) => {
     setDuration(d);

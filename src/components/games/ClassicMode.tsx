@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { RotateCcw, Eye, EyeOff, Keyboard, Activity } from 'lucide-react';
+import { useGameRestart } from './GameShell';
 
 const SAMPLE_TEXTS = [
   "The quick brown fox jumps over the lazy dog. This pangram contains every letter of the alphabet and has been used for decades to test typewriters and keyboards. It remains a popular choice for typing practice.",
@@ -150,6 +151,8 @@ export default function ClassicMode({ timeLimit: initialTimeLimit, monkeyMode: i
     setCurrentTextIndex(pickNextIndex(monkeyMode));
     inputRef.current?.focus();
   };
+
+  useGameRestart(() => resetTest());
 
   const toggleFocusMode = () => {
     setFocusMode(!focusMode);

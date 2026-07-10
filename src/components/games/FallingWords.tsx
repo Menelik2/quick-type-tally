@@ -68,6 +68,8 @@ export default function FallingWords() {
     inputRef.current?.focus();
   }, []);
 
+  useGameRestart(() => startGame());
+
   useEffect(() => {
     if (!isPlaying || gameOver) return;
 

@@ -117,6 +117,8 @@ export default function WordSprint({ initialTimeLimit = 60 }: WordSprintProps) {
     inputRef.current?.focus();
   }, [timeLimit]);
 
+  useGameRestart(() => resetTest());
+
   const changeTimeLimit = (newLimit: number) => {
     setTimeLimit(newLimit);
     setRemainingTime(newLimit);

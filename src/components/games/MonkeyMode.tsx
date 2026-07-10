@@ -70,12 +70,23 @@ export default function MonkeyMode() {
     return () => clearInterval(id);
   }, [startedAt, duration, finished]);
 
-  // Fullscreen tracking
+  // Fullscreen tracking — auto-focus input on enter, restore focus on exit
   useEffect(() => {
-    const onChange = () => setIsFullscreen(!!document.fullscreenElement);
+    const onChange = () => {
+      const fs = !!document.fullscreenElement;
+      setIsFullscreen(fs);
+      setTimeout(() => hiddenInputRef.current?.focus(), 50);
+    };
     document.addEventListener('fullscreenchange', onChange);
     return () => document.removeEventListener('fullscreenchange', onChange);
   }, []);
+
+  // Auto-exit fullscreen when the round finishes so results are clearly visible
+  useEffect(() => {
+    if (finished && document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    }
+  }, [finished]);
 
   const toggleFullscreen = async () => {
     try {

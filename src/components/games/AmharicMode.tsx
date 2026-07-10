@@ -216,16 +216,29 @@ export default function AmharicMode() {
             </div>
           </div>
 
-          <input
-            ref={inputRef}
-            type="text"
-            value={userInput}
-            onChange={handleChange}
-            lang="am"
-            placeholder="እዚህ ይተይቡ... (Type here in Amharic)"
-            className="w-full p-4 text-xl border border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 text-center font-serif"
-            autoFocus
-          />
+          {target.length > 80 ? (
+            <textarea
+              ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+              value={userInput}
+              onChange={handleChange}
+              lang="am"
+              rows={4}
+              placeholder="እዚህ ረጅም አንቀጽ ይተይቡ... (Type the full paragraph here)"
+              className="w-full p-4 text-lg border border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 font-serif leading-relaxed resize-none"
+              autoFocus
+            />
+          ) : (
+            <input
+              ref={inputRef as React.RefObject<HTMLInputElement>}
+              type="text"
+              value={userInput}
+              onChange={handleChange}
+              lang="am"
+              placeholder="እዚህ ይተይቡ... (Type here in Amharic)"
+              className="w-full p-4 text-xl border border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 text-center font-serif"
+              autoFocus
+            />
+          )}
 
           <div className="text-center text-sm text-muted-foreground space-y-2">
             <p>

@@ -70,12 +70,23 @@ export default function MonkeyMode() {
     return () => clearInterval(id);
   }, [startedAt, duration, finished]);
 
-  // Fullscreen tracking
+  // Fullscreen tracking — auto-focus input on enter, restore focus on exit
   useEffect(() => {
-    const onChange = () => setIsFullscreen(!!document.fullscreenElement);
+    const onChange = () => {
+      const fs = !!document.fullscreenElement;
+      setIsFullscreen(fs);
+      setTimeout(() => hiddenInputRef.current?.focus(), 50);
+    };
     document.addEventListener('fullscreenchange', onChange);
     return () => document.removeEventListener('fullscreenchange', onChange);
   }, []);
+
+  // Auto-exit fullscreen when the round finishes so results are clearly visible
+  useEffect(() => {
+    if (finished && document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    }
+  }, [finished]);
 
   const toggleFullscreen = async () => {
     try {
@@ -256,23 +267,37 @@ export default function MonkeyMode() {
             />
 
             <p className={`mt-6 text-center text-xs ${isFullscreen ? 'text-amber-100/70' : 'text-muted-foreground'}`}>
-              Click the words to focus. Type. Space = next word. Esc = reset.
+              {isFullscreen
+                ? 'Fullscreen mode — Space = next word, Esc or F11 = exit fullscreen, results appear when time is up.'
+                : 'Click the words to focus. Type. Space = next word. Esc = reset.'}
             </p>
+            {isFullscreen && (
+              <div className="mt-3 text-center">
+                <Button size="sm" variant="outline" onClick={toggleFullscreen} className="gap-2 bg-white/10 border-amber-300/40 text-amber-100 hover:bg-white/20">
+                  <Minimize2 className="w-4 h-4" /> Exit Fullscreen (Esc)
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
 
         {finished && (
-          <Card className={`border-0 shadow-lg ${isFullscreen ? 'bg-white/10 backdrop-blur' : 'bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200'}`}>
-            <CardContent className="p-8 text-center space-y-3">
-              <div className={`text-3xl font-bold ${isFullscreen ? 'text-amber-200' : 'text-gray-800'}`}>Time's up! 🐒</div>
-              <div className={`grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 ${isFullscreen ? 'text-amber-100' : ''}`}>
-                <div><div className="text-3xl font-bold text-blue-500">{stats.wpm}</div><div className="text-xs">WPM</div></div>
-                <div><div className="text-3xl font-bold text-green-500">{stats.accuracy}%</div><div className="text-xs">Accuracy</div></div>
-                <div><div className="text-3xl font-bold text-amber-500">{stats.correctWords}</div><div className="text-xs">Correct Words</div></div>
-                <div><div className="text-3xl font-bold text-red-500">{stats.incorrectChars}</div><div className="text-xs">Errors</div></div>
+          <Card className="border-0 shadow-lg bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200">
+            <CardContent className="p-8 text-center space-y-4">
+              <div className="text-3xl font-bold text-gray-800">Time's up! 🐒</div>
+              <div className="text-sm text-muted-foreground">
+                Round complete — {duration}s of typing
               </div>
-              <Button onClick={() => reset()} className="gap-2 mt-4">
-                <RotateCcw className="w-4 h-4" /> Play Again
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mt-4">
+                <div><div className="text-3xl font-bold text-blue-500">{stats.wpm}</div><div className="text-xs text-muted-foreground">WPM</div></div>
+                <div><div className="text-3xl font-bold text-green-500">{stats.accuracy}%</div><div className="text-xs text-muted-foreground">Accuracy</div></div>
+                <div><div className="text-3xl font-bold text-amber-500">{stats.correctWords}</div><div className="text-xs text-muted-foreground">Correct Words</div></div>
+                <div><div className="text-3xl font-bold text-emerald-500">{stats.correctChars}</div><div className="text-xs text-muted-foreground">Correct Chars</div></div>
+                <div><div className="text-3xl font-bold text-red-500">{stats.incorrectChars}</div><div className="text-xs text-muted-foreground">Incorrect</div></div>
+                <div><div className="text-3xl font-bold text-purple-500">{duration}s</div><div className="text-xs text-muted-foreground">Duration</div></div>
+              </div>
+              <Button onClick={() => reset()} className="gap-2 mt-4" size="lg">
+                <RotateCcw className="w-4 h-4" /> Restart
               </Button>
             </CardContent>
           </Card>

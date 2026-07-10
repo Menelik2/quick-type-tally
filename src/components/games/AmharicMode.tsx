@@ -51,13 +51,14 @@ const PHRASES_MEDIUM = [
   'ትዕግስት ጣፋጭ ፍሬ አለው።',
 ];
 
-// Long / complex passages
+// Long / complex passages — full paragraphs for advanced typists
 const PHRASES_HARD = [
-  'ኢትዮጵያ ከጥንት ጀምሮ የራሷ ፊደል፣ የራሷ ታሪክና የራሷ ባህል ያላት ጥንታዊ ሀገር ናት።',
-  'ትምህርት የሰው ልጅ አእምሮን የሚያበራ፣ ሕይወትን የሚቀይርና ማኅበረሰብን የሚያሳድግ ኃያል መሣሪያ ነው።',
-  'የአዲስ አበባ ከተማ የአፍሪካ ኅብረት መቀመጫ በመሆኗ የዲፕሎማሲ ማዕከል ሆና ታገለግላለች።',
-  'ቡና በኢትዮጵያ የተገኘ ሲሆን ዛሬ በዓለም ዙሪያ በሚሊዮን ለሚቆጠሩ ሰዎች ተወዳጅ መጠጥ ሆኗል።',
-  'ጠንክሮ የሚሠራ፣ ትዕግስት ያለውና እውነትን የሚናገር ሰው በሕይወቱ ስኬታማ ይሆናል።',
+  'ኢትዮጵያ ከጥንት ጀምሮ የራሷ ፊደል፣ የራሷ ታሪክና የራሷ ባህል ያላት ጥንታዊ ሀገር ናት። ሕዝቦቿ በተለያዩ ቋንቋዎችና ባህሎች ቢለያዩም በአንድ ወንድማማችነት ተሳስረው ለዘመናት አብረው ኖረዋል።',
+  'ትምህርት የሰው ልጅ አእምሮን የሚያበራ፣ ሕይወትን የሚቀይርና ማኅበረሰብን የሚያሳድግ ኃያል መሣሪያ ነው። ስለዚህ እያንዳንዱ ወጣት እውቀትን በትዕግስት መፈለግና ጠንክሮ መማር ይኖርበታል።',
+  'የአዲስ አበባ ከተማ የአፍሪካ ኅብረት መቀመጫ በመሆኗ የዲፕሎማሲ ማዕከል ሆና ታገለግላለች። ከመላው ዓለም የመጡ ዲፕሎማቶችና ጎብኚዎች በየዕለቱ ወደዚች ከተማ ይመጣሉ።',
+  'ቡና በኢትዮጵያ የተገኘ ሲሆን ዛሬ በዓለም ዙሪያ በሚሊዮን ለሚቆጠሩ ሰዎች ተወዳጅ መጠጥ ሆኗል። የቡና ሥነ ሥርዓት የኢትዮጵያ ሕዝብ የእንግድነትና የአንድነት መገለጫ ነው።',
+  'ጠንክሮ የሚሠራ፣ ትዕግስት ያለውና እውነትን የሚናገር ሰው በሕይወቱ ስኬታማ ይሆናል። ውድቀት የስኬት መንገድ አካል መሆኑን ተረድቶ ተስፋ ሳይቆርጥ ወደፊት የሚራመድ ሰው ግቡን ይመታል።',
+  'የኢትዮጵያ ተፈጥሮ በተራሮች፣ በወንዞች፣ በሐይቆችና በደኖች የተሞላ በመሆኑ ለጎብኚዎች ማራኪ ነው። ስሜን ተራሮች፣ ዳናኪል በረሃና ጣና ሐይቅ ከዓለም ተወዳዳሪ የተፈጥሮ ውበቶች መካከል ይመደባሉ።',
 ];
 
 const POOLS: Record<Mode, Record<Difficulty, string[]>> = {
@@ -76,7 +77,7 @@ export default function AmharicMode() {
   const [errors, setErrors] = useState(0);
   const [totalTyped, setTotalTyped] = useState(0);
   const lastTextRef = useRef<string>('');
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
 
   const pickNext = useCallback((m: Mode, d: Difficulty) => {
     const pool = POOLS[m][d];
@@ -129,7 +130,7 @@ export default function AmharicMode() {
     resetStats();
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const v = e.target.value;
     if (endTime) return;
     if (!startTime && v.length > 0) setStartTime(Date.now());
@@ -215,16 +216,29 @@ export default function AmharicMode() {
             </div>
           </div>
 
-          <input
-            ref={inputRef}
-            type="text"
-            value={userInput}
-            onChange={handleChange}
-            lang="am"
-            placeholder="እዚህ ይተይቡ... (Type here in Amharic)"
-            className="w-full p-4 text-xl border border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 text-center font-serif"
-            autoFocus
-          />
+          {target.length > 80 ? (
+            <textarea
+              ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+              value={userInput}
+              onChange={handleChange}
+              lang="am"
+              rows={4}
+              placeholder="እዚህ ረጅም አንቀጽ ይተይቡ... (Type the full paragraph here)"
+              className="w-full p-4 text-lg border border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 font-serif leading-relaxed resize-none"
+              autoFocus
+            />
+          ) : (
+            <input
+              ref={inputRef as React.RefObject<HTMLInputElement>}
+              type="text"
+              value={userInput}
+              onChange={handleChange}
+              lang="am"
+              placeholder="እዚህ ይተይቡ... (Type here in Amharic)"
+              className="w-full p-4 text-xl border border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 text-center font-serif"
+              autoFocus
+            />
+          )}
 
           <div className="text-center text-sm text-muted-foreground space-y-2">
             <p>

@@ -130,7 +130,7 @@ export default function AmharicMode() {
     resetStats();
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const v = e.target.value;
     if (endTime) return;
     if (!startTime && v.length > 0) setStartTime(Date.now());

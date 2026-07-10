@@ -48,6 +48,8 @@ export default function MonkeyMode() {
     setTimeout(() => hiddenInputRef.current?.focus(), 0);
   }, [duration]);
 
+  useGameRestart(() => reset());
+
   const changeDuration = (d: number) => {
     setDuration(d);
     setWords(pickWords(120));

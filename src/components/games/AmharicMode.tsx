@@ -77,7 +77,7 @@ export default function AmharicMode() {
   const [errors, setErrors] = useState(0);
   const [totalTyped, setTotalTyped] = useState(0);
   const lastTextRef = useRef<string>('');
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
 
   const pickNext = useCallback((m: Mode, d: Difficulty) => {
     const pool = POOLS[m][d];

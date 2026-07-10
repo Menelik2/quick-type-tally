@@ -267,8 +267,17 @@ export default function MonkeyMode() {
             />
 
             <p className={`mt-6 text-center text-xs ${isFullscreen ? 'text-amber-100/70' : 'text-muted-foreground'}`}>
-              Click the words to focus. Type. Space = next word. Esc = reset.
+              {isFullscreen
+                ? 'Fullscreen mode — Space = next word, Esc or F11 = exit fullscreen, results appear when time is up.'
+                : 'Click the words to focus. Type. Space = next word. Esc = reset.'}
             </p>
+            {isFullscreen && (
+              <div className="mt-3 text-center">
+                <Button size="sm" variant="outline" onClick={toggleFullscreen} className="gap-2 bg-white/10 border-amber-300/40 text-amber-100 hover:bg-white/20">
+                  <Minimize2 className="w-4 h-4" /> Exit Fullscreen (Esc)
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
 

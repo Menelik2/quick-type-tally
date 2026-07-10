@@ -1,5 +1,5 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Keyboard, Zap, Rocket, Circle, Shield, Languages, Banana } from 'lucide-react';
+import { Keyboard, Zap, Rocket, Circle, Shield, Languages, Banana, Car } from 'lucide-react';
 import ClassicMode from './games/ClassicMode';
 import WordSprint from './games/WordSprint';
 import FallingWords from './games/FallingWords';
@@ -7,6 +7,8 @@ import BubblePop from './games/BubblePop';
 import WordDefense from './games/WordDefense';
 import AmharicMode from './games/AmharicMode';
 import MonkeyMode from './games/MonkeyMode';
+import CarRace from './games/CarRace';
+import GameShell from './games/GameShell';
 
 export default function TypingTest() {
   return (
@@ -23,7 +25,7 @@ export default function TypingTest() {
 
           {/* Game Tabs */}
           <Tabs defaultValue="classic" className="w-full">
-            <TabsList className="grid w-full grid-cols-7 max-w-5xl mx-auto">
+            <TabsList className="grid w-full grid-cols-8 max-w-6xl mx-auto">
               <TabsTrigger value="classic" className="gap-2">
                 <Keyboard className="w-4 h-4" />
                 <span className="hidden sm:inline">Classic</span>
@@ -44,6 +46,10 @@ export default function TypingTest() {
                 <Shield className="w-4 h-4" />
                 <span className="hidden sm:inline">Defense</span>
               </TabsTrigger>
+              <TabsTrigger value="car" className="gap-2">
+                <Car className="w-4 h-4" />
+                <span className="hidden sm:inline">Car Race</span>
+              </TabsTrigger>
               <TabsTrigger value="monkey" className="gap-2">
                 <Banana className="w-4 h-4" />
                 <span className="hidden sm:inline">Monkey</span>
@@ -55,25 +61,28 @@ export default function TypingTest() {
             </TabsList>
 
             <TabsContent value="classic" className="mt-6">
-              <ClassicMode timeLimit={60} monkeyMode={false} />
+              <GameShell><ClassicMode timeLimit={60} monkeyMode={false} /></GameShell>
             </TabsContent>
             <TabsContent value="sprint" className="mt-6">
-              <WordSprint initialTimeLimit={60} />
+              <GameShell><WordSprint initialTimeLimit={60} /></GameShell>
             </TabsContent>
             <TabsContent value="falling" className="mt-6">
-              <FallingWords />
+              <GameShell><FallingWords /></GameShell>
             </TabsContent>
             <TabsContent value="bubble" className="mt-6">
-              <BubblePop />
+              <GameShell><BubblePop /></GameShell>
             </TabsContent>
             <TabsContent value="defense" className="mt-6">
-              <WordDefense />
+              <GameShell><WordDefense /></GameShell>
+            </TabsContent>
+            <TabsContent value="car" className="mt-6">
+              <GameShell><CarRace /></GameShell>
             </TabsContent>
             <TabsContent value="monkey" className="mt-6">
-              <MonkeyMode />
+              <GameShell><MonkeyMode /></GameShell>
             </TabsContent>
             <TabsContent value="amharic" className="mt-6">
-              <AmharicMode />
+              <GameShell><AmharicMode /></GameShell>
             </TabsContent>
           </Tabs>
         </div>

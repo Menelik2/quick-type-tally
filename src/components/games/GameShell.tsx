@@ -16,7 +16,27 @@ export default function GameShell({ children }: { children: ReactNode }) {
   const [fs, setFs] = useState(false);
 
   useEffect(() => {
-    const onChange = () => setFs(document.fullscreenElement === ref.current);
+    const onChange = () => {
+      const isFs = document.fullscreenElement === ref.current;
+      setFs(isFs);
+      if (isFs && ref.current) {
+        // Auto-focus the primary typing field and place caret at end
+        requestAnimationFrame(() => {
+          const el = ref.current?.querySelector<HTMLInputElement | HTMLTextAreaElement>(
+            'input[type="text"], input:not([type]), textarea'
+          );
+          if (!el) return;
+          el.focus({ preventScroll: true });
+          try {
+            const len = el.value.length;
+            el.setSelectionRange(len, len);
+          } catch {
+            /* some input types don't support selection */
+          }
+          el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        });
+      }
+    };
     document.addEventListener('fullscreenchange', onChange);
     return () => document.removeEventListener('fullscreenchange', onChange);
   }, []);

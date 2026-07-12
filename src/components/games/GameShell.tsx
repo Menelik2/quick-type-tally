@@ -16,29 +16,65 @@ export default function GameShell({ children }: { children: ReactNode }) {
   const [fs, setFs] = useState(false);
 
   useEffect(() => {
+    let retryTimers: number[] = [];
+    const clearRetries = () => {
+      retryTimers.forEach((id) => window.clearTimeout(id));
+      retryTimers = [];
+    };
+
+    const focusTypingField = () => {
+      const root = ref.current;
+      if (!root) return false;
+      // Prefer visible typing fields; fall back to any input/textarea (e.g. Monkey's hidden input)
+      const candidates = Array.from(
+        root.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(
+          'textarea, input[type="text"], input:not([type]), input'
+        )
+      ).filter((el) => !el.disabled && !el.readOnly);
+      const el = candidates[0];
+      if (!el) return false;
+
+      el.focus({ preventScroll: true });
+      try {
+        const len = el.value.length;
+        el.setSelectionRange(len, len);
+      } catch {
+        /* some input types don't support selection */
+      }
+      try {
+        el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      } catch {
+        /* ignore */
+      }
+      return document.activeElement === el;
+    };
+
     const onChange = () => {
       const isFs = document.fullscreenElement === ref.current;
       setFs(isFs);
-      if (isFs && ref.current) {
-        // Auto-focus the primary typing field and place caret at end
+      clearRetries();
+      if (!isFs) return;
+
+      // The fullscreen transition can still be settling when fullscreenchange fires.
+      // Retry focus a few times across frames until the active element sticks.
+      const attempt = (remaining: number) => {
         requestAnimationFrame(() => {
-          const el = ref.current?.querySelector<HTMLInputElement | HTMLTextAreaElement>(
-            'input[type="text"], input:not([type]), textarea'
-          );
-          if (!el) return;
-          el.focus({ preventScroll: true });
-          try {
-            const len = el.value.length;
-            el.setSelectionRange(len, len);
-          } catch {
-            /* some input types don't support selection */
+          const ok = focusTypingField();
+          if (!ok && remaining > 0) {
+            retryTimers.push(
+              window.setTimeout(() => attempt(remaining - 1), 60)
+            );
           }
-          el.scrollIntoView({ block: 'center', behavior: 'smooth' });
         });
-      }
+      };
+      attempt(8);
     };
+
     document.addEventListener('fullscreenchange', onChange);
-    return () => document.removeEventListener('fullscreenchange', onChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', onChange);
+      clearRetries();
+    };
   }, []);
 
   useEffect(() => {

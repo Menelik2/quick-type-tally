@@ -60,6 +60,14 @@ export default function TypingTest() {
                 <Languages className="w-4 h-4" />
                 <span className="hidden sm:inline">አማርኛ</span>
               </TabsTrigger>
+              <TabsTrigger value="code" className="gap-2">
+                <Code2 className="w-4 h-4" />
+                <span className="hidden sm:inline">Code</span>
+              </TabsTrigger>
+              <TabsTrigger value="ninja" className="gap-2">
+                <Swords className="w-4 h-4" />
+                <span className="hidden sm:inline">Ninja</span>
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="classic" className="mt-6">

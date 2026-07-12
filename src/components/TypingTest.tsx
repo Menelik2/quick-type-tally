@@ -94,6 +94,12 @@ export default function TypingTest() {
             <TabsContent value="amharic" className="mt-6">
               <GameShell><AmharicMode /></GameShell>
             </TabsContent>
+            <TabsContent value="code" className="mt-6">
+              <GameShell><CodeTyper /></GameShell>
+            </TabsContent>
+            <TabsContent value="ninja" className="mt-6">
+              <GameShell><NinjaMode /></GameShell>
+            </TabsContent>
           </Tabs>
         </div>
       </div>

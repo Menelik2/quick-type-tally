@@ -1,5 +1,5 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Keyboard, Zap, Rocket, Circle, Shield, Languages, Banana, Car } from 'lucide-react';
+import { Keyboard, Zap, Rocket, Circle, Shield, Languages, Banana, Car, Code2, Swords } from 'lucide-react';
 import ClassicMode from './games/ClassicMode';
 import WordSprint from './games/WordSprint';
 import FallingWords from './games/FallingWords';
@@ -8,6 +8,8 @@ import WordDefense from './games/WordDefense';
 import AmharicMode from './games/AmharicMode';
 import MonkeyMode from './games/MonkeyMode';
 import CarRace from './games/CarRace';
+import CodeTyper from './games/CodeTyper';
+import NinjaMode from './games/NinjaMode';
 import GameShell from './games/GameShell';
 
 export default function TypingTest() {
@@ -19,13 +21,13 @@ export default function TypingTest() {
           <div className="text-center space-y-4">
             <div className="flex items-center justify-center gap-3">
               <Keyboard className="w-8 h-8 text-blue-600" />
-              <h1 className="text-4xl font-bold text-gray-800">Type Arcade</h1>
+              <h1 className="text-4xl font-bold text-gray-800">Yene Typing</h1>
             </div>
           </div>
 
           {/* Game Tabs */}
           <Tabs defaultValue="classic" className="w-full">
-            <TabsList className="grid w-full grid-cols-8 max-w-6xl mx-auto">
+            <TabsList className="grid w-full grid-cols-5 md:grid-cols-10 max-w-7xl mx-auto">
               <TabsTrigger value="classic" className="gap-2">
                 <Keyboard className="w-4 h-4" />
                 <span className="hidden sm:inline">Classic</span>

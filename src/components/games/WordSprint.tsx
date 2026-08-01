@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { RotateCcw, Zap } from 'lucide-react';
 import { useGameRestart } from './GameShell';
+import { LevelSelect, filterWordsByLevel, type Level } from './levels';
 
 const WORD_BANK = [
   "apple", "bridge", "castle", "dragon", "eagle", "forest", "garden", "harbor", "island", "jungle",

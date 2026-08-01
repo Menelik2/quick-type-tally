@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { RotateCcw, Heart, Volume2, VolumeX, Trophy, Flame } from 'lucide-react';
 import { sfx } from '@/lib/sound';
 import { useGameRestart } from './GameShell';
+import { LevelSelect, LEVEL_TUNING, filterWordsByLevel, type Level } from './levels';
 
 const WORD_BANK = [
   "bubble", "float", "pop", "rise", "sky", "cloud", "air", "wind", "blue", "soap",
@@ -40,11 +41,12 @@ const GAME_HEIGHT = 620;
 const WIN_SCORE = 1000;
 
 export default function BubblePop() {
+  const [difficulty, setDifficulty] = useState<Level>('medium');
   const [bubbles, setBubbles] = useState<Bubble[]>([]);
   const [bursts, setBursts] = useState<Burst[]>([]);
   const [popups, setPopups] = useState<Popup[]>([]);
   const [score, setScore] = useState(0);
-  const [lives, setLives] = useState(5);
+  const [lives, setLives] = useState(LEVEL_TUNING.medium.lives);
   const [isPlaying, setIsPlaying] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [won, setWon] = useState(false);
@@ -82,30 +84,34 @@ export default function BubblePop() {
     setTimeout(() => setPopups(prev => prev.filter(p => p.id !== id)), 900);
   };
 
+  const tuning = LEVEL_TUNING[difficulty];
+  const maxLives = tuning.lives;
+
   const spawnBubble = useCallback(() => {
-    const wordText = WORD_BANK[Math.floor(Math.random() * WORD_BANK.length)];
+    const pool = filterWordsByLevel(WORD_BANK, difficulty);
+    const wordText = pool[Math.floor(Math.random() * pool.length)];
     const gameWidth = gameAreaRef.current?.clientWidth || 800;
-    const size = 80 + Math.random() * 50;
+    const size = (80 + Math.random() * 50) * (difficulty === 'hard' ? 0.8 : difficulty === 'easy' ? 1.15 : 1);
     const newBubble: Bubble = {
       id: nextIdRef.current++,
       word: wordText,
       x: 40 + Math.random() * (gameWidth - size - 80),
       y: GAME_HEIGHT,
-      speed: 0.3 + level * 0.13 + Math.random() * 0.15,
+      speed: (0.3 + level * 0.13 + Math.random() * 0.15) * tuning.speed,
       size,
       color: BUBBLE_COLORS[Math.floor(Math.random() * BUBBLE_COLORS.length)],
       typedSoFar: '',
-      drift: (Math.random() - 0.5) * 0.3,
+      drift: (Math.random() - 0.5) * 0.3 * tuning.speed,
     };
     setBubbles(prev => [...prev, newBubble]);
-  }, [level]);
+  }, [level, difficulty, tuning.speed]);
 
-  const startGame = useCallback(() => {
+  const startGame = useCallback((d: Level = difficulty) => {
     setBubbles([]);
     setBursts([]);
     setPopups([]);
     setScore(0);
-    setLives(5);
+    setLives(LEVEL_TUNING[d].lives);
     setIsPlaying(true);
     setGameOver(false);
     setWon(false);
@@ -122,17 +128,23 @@ export default function BubblePop() {
     lastSpawnRef.current = 0;
     prevInputRef.current = '';
     setTimeout(() => inputRef.current?.focus(), 50);
-  }, []);
+  }, [difficulty]);
 
   useGameRestart(() => startGame());
+
+  const changeDifficulty = (d: Level) => {
+    setDifficulty(d);
+    startGame(d);
+  };
 
   useEffect(() => {
     if (!isPlaying || gameOver) return;
     const animate = (time: number) => {
-      if (time - lastSpawnRef.current > Math.max(1400 - level * 90, 500)) {
+      if (time - lastSpawnRef.current > Math.max(1400 - level * 90, 500) * tuning.spawn) {
         spawnBubble();
         lastSpawnRef.current = time;
       }
+
       setBubbles(prev => {
         const updated = prev.map(b => ({ ...b, y: b.y - b.speed, x: b.x + b.drift }));
         const escaped = updated.filter(b => b.y < -60);
@@ -255,12 +267,14 @@ export default function BubblePop() {
         ))}
       </div>
 
-      <div className="flex items-center justify-center gap-4">
+      <div className="flex items-center justify-center gap-4 flex-wrap">
+        <LevelSelect value={difficulty} onChange={changeDifficulty} />
         <div className="flex gap-1">
-          {Array.from({ length: 5 }).map((_, i) => (
+          {Array.from({ length: maxLives }).map((_, i) => (
             <Heart key={i} className={`w-6 h-6 transition-all ${i < lives ? 'text-red-500 fill-red-500' : 'text-gray-300'}`} />
           ))}
         </div>
+
         <Button variant="ghost" size="sm" onClick={() => setSoundOn(v => !v)} className="gap-1">
           {soundOn ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
           <span className="text-xs">{soundOn ? 'Sound On' : 'Muted'}</span>
@@ -331,7 +345,7 @@ export default function BubblePop() {
                           </div>
                         ))}
                       </div>
-                      <Button onClick={startGame} size="lg" className="w-full gap-2">
+                      <Button onClick={() => startGame()} size="lg" className="w-full gap-2">
                         <RotateCcw className="w-5 h-5" /> Play Again
                       </Button>
                     </CardContent>
@@ -340,7 +354,7 @@ export default function BubblePop() {
                   <div className="flex flex-col items-center gap-4">
                     <div className="text-3xl font-bold text-white">Bubble Pop</div>
                     <div className="text-sm text-gray-200">Type words to pop bubbles. Reach {WIN_SCORE} to win.</div>
-                    <Button onClick={startGame} size="lg" className="gap-2">
+                    <Button onClick={() => startGame()} size="lg" className="gap-2">
                       <RotateCcw className="w-5 h-5" /> Start Game
                     </Button>
                   </div>

@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { RotateCcw, Heart } from 'lucide-react';
 import { useGameRestart } from './GameShell';
+import { LevelSelect, LEVEL_TUNING, filterWordsByLevel, type Level } from './levels';
 
 const WORD_BANK = [
   "apple", "bridge", "castle", "dragon", "eagle", "forest", "garden", "harbor", "island", "jungle",
@@ -25,9 +26,10 @@ interface FallingWord {
 }
 
 export default function FallingWords() {
+  const [difficulty, setDifficulty] = useState<Level>('medium');
   const [words, setWords] = useState<FallingWord[]>([]);
   const [score, setScore] = useState(0);
-  const [lives, setLives] = useState(5);
+  const [lives, setLives] = useState(LEVEL_TUNING.medium.lives);
   const [isPlaying, setIsPlaying] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [level, setLevel] = useState(1);
@@ -40,24 +42,28 @@ export default function FallingWords() {
   const frameRef = useRef(0);
   const lastSpawnRef = useRef(0);
 
+  const tuning = LEVEL_TUNING[difficulty];
+  const maxLives = tuning.lives;
+
   const spawnWord = useCallback(() => {
-    const wordText = WORD_BANK[Math.floor(Math.random() * WORD_BANK.length)];
+    const pool = filterWordsByLevel(WORD_BANK, difficulty);
+    const wordText = pool[Math.floor(Math.random() * pool.length)];
     const gameWidth = gameAreaRef.current?.clientWidth || 600;
     const newWord: FallingWord = {
       id: nextIdRef.current++,
       word: wordText,
       x: 40 + Math.random() * (gameWidth - 200),
       y: -30,
-      speed: 0.3 + level * 0.15 + Math.random() * 0.2,
+      speed: (0.3 + level * 0.15 + Math.random() * 0.2) * tuning.speed,
       typedSoFar: '',
     };
     setWords(prev => [...prev, newWord]);
-  }, [level]);
+  }, [level, difficulty, tuning.speed]);
 
-  const startGame = useCallback(() => {
+  const startGame = useCallback((d: Level = difficulty) => {
     setWords([]);
     setScore(0);
-    setLives(5);
+    setLives(LEVEL_TUNING[d].lives);
     setIsPlaying(true);
     setGameOver(false);
     setLevel(1);
@@ -66,18 +72,24 @@ export default function FallingWords() {
     nextIdRef.current = 0;
     lastSpawnRef.current = 0;
     inputRef.current?.focus();
-  }, []);
+  }, [difficulty]);
 
   useGameRestart(() => startGame());
+
+  const changeDifficulty = (d: Level) => {
+    setDifficulty(d);
+    startGame(d);
+  };
 
   useEffect(() => {
     if (!isPlaying || gameOver) return;
 
     const animate = (time: number) => {
-      if (time - lastSpawnRef.current > Math.max(1200 - level * 80, 400)) {
+      if (time - lastSpawnRef.current > Math.max(1200 - level * 80, 400) * tuning.spawn) {
         spawnWord();
         lastSpawnRef.current = time;
       }
+
 
       setWords(prev => {
         const updated = prev.map(w => ({ ...w, y: w.y + w.speed }));
@@ -160,7 +172,12 @@ export default function FallingWords() {
 
   return (
     <div className="space-y-6">
+      <div className="flex items-center justify-center">
+        <LevelSelect value={difficulty} onChange={changeDifficulty} />
+      </div>
+
       {/* Stats */}
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: 'Score', value: score, color: 'text-blue-600' },
@@ -179,7 +196,7 @@ export default function FallingWords() {
 
       {/* Lives */}
       <div className="flex justify-center gap-1">
-        {Array.from({ length: 5 }).map((_, i) => (
+        {Array.from({ length: maxLives }).map((_, i) => (
           <Heart key={i} className={`w-6 h-6 ${i < lives ? 'text-red-500 fill-red-500' : 'text-gray-300'}`} />
         ))}
       </div>
@@ -232,7 +249,7 @@ export default function FallingWords() {
                 ) : (
                   <div className="text-2xl font-bold text-white">Falling Words</div>
                 )}
-                <Button onClick={startGame} size="lg" className="gap-2">
+                <Button onClick={() => startGame()} size="lg" className="gap-2">
                   <RotateCcw className="w-5 h-5" />
                   {gameOver ? 'Play Again' : 'Start Game'}
                 </Button>

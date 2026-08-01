@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { RotateCcw, Maximize2, Minimize2, Banana } from 'lucide-react';
 import { useGameRestart } from './GameShell';
+import { LevelSelect, filterWordsByLevel, type Level } from './levels';
 
 const MONKEY_WORDS = [
   'monkey', 'banana', 'jungle', 'swing', 'tree', 'vine', 'coconut', 'palm',
@@ -18,17 +19,25 @@ const MONKEY_WORDS = [
 
 const DURATIONS = [15, 30, 60, 120] as const;
 
-function pickWords(count: number): string[] {
+function pickWords(count: number, level: Level = 'medium'): string[] {
+  const pool = filterWordsByLevel(MONKEY_WORDS, level);
   const arr: string[] = [];
   for (let i = 0; i < count; i++) {
-    arr.push(MONKEY_WORDS[Math.floor(Math.random() * MONKEY_WORDS.length)]);
+    let w = pool[Math.floor(Math.random() * pool.length)];
+    if (level === 'hard') {
+      // Add capitalisation and punctuation to raise the challenge
+      if (Math.random() < 0.25) w = w[0].toUpperCase() + w.slice(1);
+      if (Math.random() < 0.2) w = w + [',', '.', ';', "'s", '!'][Math.floor(Math.random() * 5)];
+    }
+    arr.push(w);
   }
   return arr;
 }
 
 export default function MonkeyMode() {
+  const [level, setLevel] = useState<Level>('medium');
   const [duration, setDuration] = useState<number>(30);
-  const [words, setWords] = useState<string[]>(() => pickWords(120));
+  const [words, setWords] = useState<string[]>(() => pickWords(120, 'medium'));
   const [typed, setTyped] = useState<string[]>(['']); // typed[i] = what user typed for word i
   const [currentIndex, setCurrentIndex] = useState(0);
   const [startedAt, setStartedAt] = useState<number | null>(null);
@@ -38,28 +47,28 @@ export default function MonkeyMode() {
   const containerRef = useRef<HTMLDivElement>(null);
   const hiddenInputRef = useRef<HTMLInputElement>(null);
 
-  const reset = useCallback((d: number = duration) => {
-    setWords(pickWords(120));
+  const reset = useCallback((d: number = duration, lv: Level = level) => {
+    setWords(pickWords(120, lv));
     setTyped(['']);
     setCurrentIndex(0);
     setStartedAt(null);
     setRemaining(d);
     setFinished(false);
     setTimeout(() => hiddenInputRef.current?.focus(), 0);
-  }, [duration]);
+  }, [duration, level]);
 
   useGameRestart(() => reset());
 
   const changeDuration = (d: number) => {
     setDuration(d);
-    setWords(pickWords(120));
-    setTyped(['']);
-    setCurrentIndex(0);
-    setStartedAt(null);
-    setRemaining(d);
-    setFinished(false);
-    setTimeout(() => hiddenInputRef.current?.focus(), 0);
+    reset(d, level);
   };
+
+  const changeLevel = (lv: Level) => {
+    setLevel(lv);
+    reset(duration, lv);
+  };
+
 
   // Timer
   useEffect(() => {
@@ -124,7 +133,7 @@ export default function MonkeyMode() {
       });
       // extend word list if near end
       if (next > words.length - 20) {
-        setWords((w) => [...w, ...pickWords(60)]);
+        setWords((w) => [...w, ...pickWords(60, level)]);
       }
     } else if (e.key === 'Backspace') {
       e.preventDefault();
@@ -199,6 +208,8 @@ export default function MonkeyMode() {
               </Button>
             ))}
           </div>
+          <LevelSelect value={level} onChange={changeLevel} showIcon={false} />
+
           <Button size="sm" variant="outline" onClick={() => reset()} className="gap-2">
             <RotateCcw className="w-4 h-4" /> Reset
           </Button>

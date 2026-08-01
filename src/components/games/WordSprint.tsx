@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { RotateCcw, Zap } from 'lucide-react';
 import { useGameRestart } from './GameShell';
+import { LevelSelect, filterWordsByLevel, type Level } from './levels';
 
 const WORD_BANK = [
   "apple", "bridge", "castle", "dragon", "eagle", "forest", "garden", "harbor", "island", "jungle",
@@ -18,9 +19,12 @@ const WORD_BANK = [
   "rapid", "solid", "tight", "vital", "whole", "zeal", "about", "above", "across", "after"
 ];
 
-function getRandomWords(count: number): string[] {
-  const shuffled = [...WORD_BANK].sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, count);
+function getRandomWords(count: number, level: Level): string[] {
+  const pool = filterWordsByLevel(WORD_BANK, level);
+  const shuffled = [...pool].sort(() => 0.5 - Math.random());
+  const out: string[] = [];
+  while (out.length < count) out.push(...shuffled);
+  return out.slice(0, count);
 }
 
 interface WordSprintProps {
@@ -28,6 +32,7 @@ interface WordSprintProps {
 }
 
 export default function WordSprint({ initialTimeLimit = 60 }: WordSprintProps) {
+  const [level, setLevel] = useState<Level>('medium');
   const [words, setWords] = useState<string[]>([]);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [userInput, setUserInput] = useState('');
@@ -43,7 +48,7 @@ export default function WordSprint({ initialTimeLimit = 60 }: WordSprintProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setWords(getRandomWords(50));
+    setWords(getRandomWords(50, 'medium'));
   }, []);
 
   useEffect(() => {
@@ -103,8 +108,8 @@ export default function WordSprint({ initialTimeLimit = 60 }: WordSprintProps) {
     }
   };
 
-  const resetTest = useCallback(() => {
-    setWords(getRandomWords(50));
+  const resetTest = useCallback((lv: Level = level) => {
+    setWords(getRandomWords(50, lv));
     setCurrentWordIndex(0);
     setUserInput('');
     setStartTime(null);
@@ -115,7 +120,7 @@ export default function WordSprint({ initialTimeLimit = 60 }: WordSprintProps) {
     setStreak(0);
     setWpm(0);
     inputRef.current?.focus();
-  }, [timeLimit]);
+  }, [timeLimit, level]);
 
   useGameRestart(() => resetTest());
 
@@ -123,6 +128,11 @@ export default function WordSprint({ initialTimeLimit = 60 }: WordSprintProps) {
     setTimeLimit(newLimit);
     setRemainingTime(newLimit);
     resetTest();
+  };
+
+  const changeLevel = (lv: Level) => {
+    setLevel(lv);
+    resetTest(lv);
   };
 
   const accuracy = totalTyped > 0 ? Math.round((correctWords / Math.max(1, currentWordIndex)) * 100) : 100;
@@ -140,6 +150,8 @@ export default function WordSprint({ initialTimeLimit = 60 }: WordSprintProps) {
             </Button>
           ))}
         </div>
+        <div className="w-px h-6 bg-border" />
+        <LevelSelect value={level} onChange={changeLevel} />
       </div>
 
       <Progress value={progress} className="h-2" />
@@ -200,7 +212,7 @@ export default function WordSprint({ initialTimeLimit = 60 }: WordSprintProps) {
           />
 
           <div className="flex justify-center gap-4">
-            <Button onClick={resetTest} variant="outline" className="gap-2">
+            <Button onClick={() => resetTest()} variant="outline" className="gap-2">
               <RotateCcw className="w-4 h-4" />
               Reset
             </Button>

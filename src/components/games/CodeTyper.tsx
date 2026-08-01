@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { RotateCcw, Code2 } from 'lucide-react';
 import { useGameRestart } from './GameShell';
+import { LevelSelect, poolByLevel, type Level } from './levels';
 
 type Lang = 'javascript' | 'python' | 'html' | 'css';
 
@@ -36,6 +37,7 @@ const LANGS: { key: Lang; label: string; color: string }[] = [
 ];
 
 export default function CodeTyper() {
+  const [level, setLevel] = useState<Level>('medium');
   const [lang, setLang] = useState<Lang>('javascript');
   const [target, setTarget] = useState('');
   const [input, setInput] = useState('');
@@ -46,8 +48,8 @@ export default function CodeTyper() {
   const lastRef = useRef('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const pick = useCallback((l: Lang) => {
-    const pool = SNIPPETS[l];
+  const pick = useCallback((l: Lang, lv: Level) => {
+    const pool = poolByLevel(SNIPPETS[l], lv);
     let choice = pool[Math.floor(Math.random() * pool.length)];
     let guard = 0;
     while (choice === lastRef.current && pool.length > 1 && guard < 8) {
@@ -58,34 +60,36 @@ export default function CodeTyper() {
     return choice;
   }, []);
 
-  const reset = useCallback((l: Lang = lang) => {
-    setTarget(pick(l));
+  const reset = useCallback((l: Lang = lang, lv: Level = level) => {
+    setTarget(pick(l, lv));
     setInput('');
     setStartedAt(null);
     setFinishedAt(null);
     setErrors(0);
     setTotalTyped(0);
     setTimeout(() => textareaRef.current?.focus(), 0);
-  }, [lang, pick]);
+  }, [lang, level, pick]);
+
 
   useGameRestart(() => reset());
 
   useEffect(() => {
-    reset(lang);
+    reset(lang, level);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const changeLang = (l: Lang) => {
     setLang(l);
     lastRef.current = '';
-    setTarget(pick(l));
-    setInput('');
-    setStartedAt(null);
-    setFinishedAt(null);
-    setErrors(0);
-    setTotalTyped(0);
-    setTimeout(() => textareaRef.current?.focus(), 0);
+    reset(l, level);
   };
+
+  const changeLevel = (lv: Level) => {
+    setLevel(lv);
+    lastRef.current = '';
+    reset(lang, lv);
+  };
+
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (finishedAt) return;
@@ -163,7 +167,10 @@ export default function CodeTyper() {
             {l.label}
           </Button>
         ))}
+        <div className="w-px h-6 bg-border mx-1" />
+        <LevelSelect value={level} onChange={changeLevel} />
       </div>
+
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         {[
@@ -214,7 +221,7 @@ export default function CodeTyper() {
           )}
 
           <div className="flex justify-center gap-3">
-            <Button onClick={() => reset(lang)} variant="outline" className="gap-2">
+            <Button onClick={() => reset(lang, level)} variant="outline" className="gap-2">
               <RotateCcw className="w-4 h-4" />
               New Snippet
             </Button>

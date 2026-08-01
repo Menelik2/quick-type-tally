@@ -4,6 +4,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Car, RotateCcw, Flag, Trophy } from 'lucide-react';
 import { sfx } from '@/lib/sound';
 import { useGameRestart } from './GameShell';
+import { LevelSelect, filterWordsByLevel, type Level } from './levels';
+
+const RIVAL_WPM: Record<Level, number> = { easy: 30, medium: 45, hard: 65 };
 
 const WORD_POOL = [
   'engine', 'wheel', 'brake', 'gear', 'turbo', 'road', 'speed', 'drive', 'race', 'track',
@@ -18,17 +21,19 @@ const DURATIONS = [30, 60, 90] as const;
 const TRACK_LEN = 100; // percent
 const OPPONENT_WPM = 45; // baseline pace for the rival
 
-function pickWord(prev: string) {
-  let w = WORD_POOL[Math.floor(Math.random() * WORD_POOL.length)];
+function pickWord(prev: string, level: Level = 'medium') {
+  const pool = filterWordsByLevel(WORD_POOL, level);
+  let w = pool[Math.floor(Math.random() * pool.length)];
   let guard = 0;
   while (w === prev && guard < 5) {
-    w = WORD_POOL[Math.floor(Math.random() * WORD_POOL.length)];
+    w = pool[Math.floor(Math.random() * pool.length)];
     guard++;
   }
   return w;
 }
 
 export default function CarRace() {
+  const [level, setLevel] = useState<Level>('medium');
   const [duration, setDuration] = useState<number>(60);
   const [word, setWord] = useState(() => pickWord(''));
   const [typed, setTyped] = useState('');
@@ -43,8 +48,8 @@ export default function CarRace() {
   const [streak, setStreak] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const reset = useCallback((d: number = duration) => {
-    setWord(pickWord(''));
+  const reset = useCallback((d: number = duration, lv: Level = level) => {
+    setWord(pickWord('', lv));
     setTyped('');
     setStartedAt(null);
     setRemaining(d);
@@ -56,7 +61,7 @@ export default function CarRace() {
     setWordsDone(0);
     setStreak(0);
     setTimeout(() => inputRef.current?.focus(), 0);
-  }, [duration]);
+  }, [duration, level]);
 
   useGameRestart(() => reset());
 
@@ -64,6 +69,12 @@ export default function CarRace() {
     setDuration(d);
     setTimeout(() => reset(d), 0);
   };
+
+  const changeLevel = (lv: Level) => {
+    setLevel(lv);
+    setTimeout(() => reset(duration, lv), 0);
+  };
+
 
   // Timer + opponent movement
   useEffect(() => {
@@ -74,7 +85,7 @@ export default function CarRace() {
       setRemaining(left);
       // Opponent progresses linearly to reach ~TRACK_LEN in `duration * (OPPONENT_WPM / 60)` chars-per-min pace
       // Simpler: opponent finishes track in slightly more than duration -> steady progress
-      const oppRate = TRACK_LEN / duration; // % per second
+      const oppRate = (TRACK_LEN / duration) * (RIVAL_WPM[level] / OPPONENT_WPM); // % per second
       setOppPos(Math.min(TRACK_LEN, elapsed * oppRate));
       if (left === 0) {
         setFinished(true);
@@ -108,7 +119,7 @@ export default function CarRace() {
         // Advance: each character = ~1% of track, scaled to duration
         const advance = (word.length * 60) / (duration * OPPONENT_WPM * 5) * TRACK_LEN;
         setPlayerPos((p) => Math.min(TRACK_LEN, p + advance + (streak >= 5 ? advance * 0.3 : 0)));
-        setWord((prev) => pickWord(prev));
+        setWord((prev) => pickWord(prev, level));
         setTyped('');
         sfx.pop();
         if ((streak + 1) % 5 === 0) sfx.streak();
@@ -150,6 +161,8 @@ export default function CarRace() {
           <Car className="w-5 h-5 text-red-500" />
           <span className="text-sm font-semibold text-gray-700">Car Race</span>
         </div>
+        <LevelSelect value={level} onChange={changeLevel} />
+
         {DURATIONS.map((d) => (
           <Button key={d} size="sm" variant={duration === d ? 'default' : 'outline'} onClick={() => changeDuration(d)}>
             {d}s

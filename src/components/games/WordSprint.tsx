@@ -18,9 +18,12 @@ const WORD_BANK = [
   "rapid", "solid", "tight", "vital", "whole", "zeal", "about", "above", "across", "after"
 ];
 
-function getRandomWords(count: number): string[] {
-  const shuffled = [...WORD_BANK].sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, count);
+function getRandomWords(count: number, level: Level): string[] {
+  const pool = filterWordsByLevel(WORD_BANK, level);
+  const shuffled = [...pool].sort(() => 0.5 - Math.random());
+  const out: string[] = [];
+  while (out.length < count) out.push(...shuffled);
+  return out.slice(0, count);
 }
 
 interface WordSprintProps {
@@ -28,6 +31,7 @@ interface WordSprintProps {
 }
 
 export default function WordSprint({ initialTimeLimit = 60 }: WordSprintProps) {
+  const [level, setLevel] = useState<Level>('medium');
   const [words, setWords] = useState<string[]>([]);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [userInput, setUserInput] = useState('');
@@ -43,7 +47,7 @@ export default function WordSprint({ initialTimeLimit = 60 }: WordSprintProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setWords(getRandomWords(50));
+    setWords(getRandomWords(50, 'medium'));
   }, []);
 
   useEffect(() => {

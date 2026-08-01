@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { RotateCcw, Maximize2, Minimize2, Banana } from 'lucide-react';
 import { useGameRestart } from './GameShell';
+import { LevelSelect, filterWordsByLevel, type Level } from './levels';
 
 const MONKEY_WORDS = [
   'monkey', 'banana', 'jungle', 'swing', 'tree', 'vine', 'coconut', 'palm',

@@ -84,30 +84,34 @@ export default function BubblePop() {
     setTimeout(() => setPopups(prev => prev.filter(p => p.id !== id)), 900);
   };
 
+  const tuning = LEVEL_TUNING[difficulty];
+  const maxLives = tuning.lives;
+
   const spawnBubble = useCallback(() => {
-    const wordText = WORD_BANK[Math.floor(Math.random() * WORD_BANK.length)];
+    const pool = filterWordsByLevel(WORD_BANK, difficulty);
+    const wordText = pool[Math.floor(Math.random() * pool.length)];
     const gameWidth = gameAreaRef.current?.clientWidth || 800;
-    const size = 80 + Math.random() * 50;
+    const size = (80 + Math.random() * 50) * (difficulty === 'hard' ? 0.8 : difficulty === 'easy' ? 1.15 : 1);
     const newBubble: Bubble = {
       id: nextIdRef.current++,
       word: wordText,
       x: 40 + Math.random() * (gameWidth - size - 80),
       y: GAME_HEIGHT,
-      speed: 0.3 + level * 0.13 + Math.random() * 0.15,
+      speed: (0.3 + level * 0.13 + Math.random() * 0.15) * tuning.speed,
       size,
       color: BUBBLE_COLORS[Math.floor(Math.random() * BUBBLE_COLORS.length)],
       typedSoFar: '',
-      drift: (Math.random() - 0.5) * 0.3,
+      drift: (Math.random() - 0.5) * 0.3 * tuning.speed,
     };
     setBubbles(prev => [...prev, newBubble]);
-  }, [level]);
+  }, [level, difficulty, tuning.speed]);
 
-  const startGame = useCallback(() => {
+  const startGame = useCallback((d: Level = difficulty) => {
     setBubbles([]);
     setBursts([]);
     setPopups([]);
     setScore(0);
-    setLives(5);
+    setLives(LEVEL_TUNING[d].lives);
     setIsPlaying(true);
     setGameOver(false);
     setWon(false);
@@ -124,17 +128,23 @@ export default function BubblePop() {
     lastSpawnRef.current = 0;
     prevInputRef.current = '';
     setTimeout(() => inputRef.current?.focus(), 50);
-  }, []);
+  }, [difficulty]);
 
   useGameRestart(() => startGame());
+
+  const changeDifficulty = (d: Level) => {
+    setDifficulty(d);
+    startGame(d);
+  };
 
   useEffect(() => {
     if (!isPlaying || gameOver) return;
     const animate = (time: number) => {
-      if (time - lastSpawnRef.current > Math.max(1400 - level * 90, 500)) {
+      if (time - lastSpawnRef.current > Math.max(1400 - level * 90, 500) * tuning.spawn) {
         spawnBubble();
         lastSpawnRef.current = time;
       }
+
       setBubbles(prev => {
         const updated = prev.map(b => ({ ...b, y: b.y - b.speed, x: b.x + b.drift }));
         const escaped = updated.filter(b => b.y < -60);

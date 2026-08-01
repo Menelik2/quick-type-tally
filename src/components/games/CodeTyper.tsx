@@ -81,14 +81,15 @@ export default function CodeTyper() {
   const changeLang = (l: Lang) => {
     setLang(l);
     lastRef.current = '';
-    setTarget(pick(l));
-    setInput('');
-    setStartedAt(null);
-    setFinishedAt(null);
-    setErrors(0);
-    setTotalTyped(0);
-    setTimeout(() => textareaRef.current?.focus(), 0);
+    reset(l, level);
   };
+
+  const changeLevel = (lv: Level) => {
+    setLevel(lv);
+    lastRef.current = '';
+    reset(lang, lv);
+  };
+
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (finishedAt) return;

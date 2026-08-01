@@ -144,7 +144,7 @@ export default function ClassicMode({ timeLimit: initialTimeLimit, monkeyMode: i
     resetTest(newLimit);
   };
 
-  const resetTest = (limit?: number) => {
+  const resetTest = (limit?: number, lv: Level = level) => {
     setUserInput('');
     setStartTime(null);
     setIsComplete(false);
@@ -155,9 +155,16 @@ export default function ClassicMode({ timeLimit: initialTimeLimit, monkeyMode: i
     setErrors(0);
     setCorrectChars(0);
     setRemainingTime(limit ?? timeLimit);
-    setCurrentTextIndex(pickNextIndex(monkeyMode));
+    setCurrentTextIndex(pickNextIndex(monkeyMode, lv));
     inputRef.current?.focus();
   };
+
+  const changeLevel = (lv: Level) => {
+    setLevel(lv);
+    lastTextIndexRef.current = -1;
+    resetTest(undefined, lv);
+  };
+
 
   useGameRestart(() => resetTest());
 

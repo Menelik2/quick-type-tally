@@ -61,11 +61,15 @@ export default function ClassicMode({ timeLimit: initialTimeLimit, monkeyMode: i
   const [bestWpm, setBestWpm] = useState(0);
   const [errors, setErrors] = useState(0);
   const [correctChars, setCorrectChars] = useState(0);
+  const [level, setLevel] = useState<Level>('medium');
   const inputRef = useRef<HTMLInputElement>(null);
   const lastTextIndexRef = useRef<number>(-1);
 
-  const pickNextIndex = (mode: boolean) => {
-    const pool = mode ? MONKEY_PHRASES : SAMPLE_TEXTS;
+  const getPool = (mode: boolean, lv: Level) =>
+    poolByLevel(mode ? MONKEY_PHRASES : SAMPLE_TEXTS, lv);
+
+  const pickNextIndex = (mode: boolean, lv: Level = level) => {
+    const pool = getPool(mode, lv);
     if (pool.length <= 1) return 0;
     let next = Math.floor(Math.random() * pool.length);
     while (next === lastTextIndexRef.current) {
@@ -75,9 +79,11 @@ export default function ClassicMode({ timeLimit: initialTimeLimit, monkeyMode: i
     return next;
   };
 
+  const activePool = getPool(monkeyMode, level);
   const currentText = monkeyMode
-    ? MONKEY_PHRASES[currentTextIndex % MONKEY_PHRASES.length].repeat(3)
-    : SAMPLE_TEXTS[currentTextIndex];
+    ? activePool[currentTextIndex % activePool.length].repeat(3)
+    : activePool[currentTextIndex % activePool.length];
+
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;

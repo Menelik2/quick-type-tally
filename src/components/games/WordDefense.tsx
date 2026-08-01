@@ -267,15 +267,17 @@ export default function WordDefense() {
         ))}
       </div>
 
-      <div className="flex items-center justify-center gap-4">
+      <div className="flex items-center justify-center gap-4 flex-wrap">
+        <LevelSelect value={difficulty} onChange={changeDifficulty} />
         <Shield className="w-5 h-5 text-indigo-600" />
         <div className="w-72 h-3 bg-gray-200 rounded-full overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-green-500 via-yellow-500 to-red-500 transition-all"
-            style={{ width: `${health}%` }}
+            style={{ width: `${(health / maxHealth) * 100}%` }}
           />
         </div>
         <span className="text-sm font-mono font-bold text-gray-700">{health} HP</span>
+
         <Button variant="ghost" size="sm" onClick={() => setSoundOn(v => !v)} className="gap-1">
           {soundOn ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
           <span className="text-xs">{soundOn ? 'Sound On' : 'Muted'}</span>

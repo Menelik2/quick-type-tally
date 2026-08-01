@@ -33,6 +33,7 @@ function pickWord(prev: string, level: Level = 'medium') {
 }
 
 export default function CarRace() {
+  const [level, setLevel] = useState<Level>('medium');
   const [duration, setDuration] = useState<number>(60);
   const [word, setWord] = useState(() => pickWord(''));
   const [typed, setTyped] = useState('');

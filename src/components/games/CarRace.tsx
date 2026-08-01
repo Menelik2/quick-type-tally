@@ -21,11 +21,12 @@ const DURATIONS = [30, 60, 90] as const;
 const TRACK_LEN = 100; // percent
 const OPPONENT_WPM = 45; // baseline pace for the rival
 
-function pickWord(prev: string) {
-  let w = WORD_POOL[Math.floor(Math.random() * WORD_POOL.length)];
+function pickWord(prev: string, level: Level = 'medium') {
+  const pool = filterWordsByLevel(WORD_POOL, level);
+  let w = pool[Math.floor(Math.random() * pool.length)];
   let guard = 0;
   while (w === prev && guard < 5) {
-    w = WORD_POOL[Math.floor(Math.random() * WORD_POOL.length)];
+    w = pool[Math.floor(Math.random() * pool.length)];
     guard++;
   }
   return w;

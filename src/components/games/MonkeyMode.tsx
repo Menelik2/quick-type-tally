@@ -19,17 +19,25 @@ const MONKEY_WORDS = [
 
 const DURATIONS = [15, 30, 60, 120] as const;
 
-function pickWords(count: number): string[] {
+function pickWords(count: number, level: Level = 'medium'): string[] {
+  const pool = filterWordsByLevel(MONKEY_WORDS, level);
   const arr: string[] = [];
   for (let i = 0; i < count; i++) {
-    arr.push(MONKEY_WORDS[Math.floor(Math.random() * MONKEY_WORDS.length)]);
+    let w = pool[Math.floor(Math.random() * pool.length)];
+    if (level === 'hard') {
+      // Add capitalisation and punctuation to raise the challenge
+      if (Math.random() < 0.25) w = w[0].toUpperCase() + w.slice(1);
+      if (Math.random() < 0.2) w = w + [',', '.', ';', "'s", '!'][Math.floor(Math.random() * 5)];
+    }
+    arr.push(w);
   }
   return arr;
 }
 
 export default function MonkeyMode() {
+  const [level, setLevel] = useState<Level>('medium');
   const [duration, setDuration] = useState<number>(30);
-  const [words, setWords] = useState<string[]>(() => pickWords(120));
+  const [words, setWords] = useState<string[]>(() => pickWords(120, 'medium'));
   const [typed, setTyped] = useState<string[]>(['']); // typed[i] = what user typed for word i
   const [currentIndex, setCurrentIndex] = useState(0);
   const [startedAt, setStartedAt] = useState<number | null>(null);

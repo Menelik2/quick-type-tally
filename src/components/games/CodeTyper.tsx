@@ -74,7 +74,7 @@ export default function CodeTyper() {
   useGameRestart(() => reset());
 
   useEffect(() => {
-    reset(lang);
+    reset(lang, level);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -167,7 +167,10 @@ export default function CodeTyper() {
             {l.label}
           </Button>
         ))}
+        <div className="w-px h-6 bg-border mx-1" />
+        <LevelSelect value={level} onChange={changeLevel} />
       </div>
+
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         {[
@@ -218,7 +221,7 @@ export default function CodeTyper() {
           )}
 
           <div className="flex justify-center gap-3">
-            <Button onClick={() => reset(lang)} variant="outline" className="gap-2">
+            <Button onClick={() => reset(lang, level)} variant="outline" className="gap-2">
               <RotateCcw className="w-4 h-4" />
               New Snippet
             </Button>

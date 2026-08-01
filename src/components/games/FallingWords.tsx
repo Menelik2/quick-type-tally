@@ -26,9 +26,10 @@ interface FallingWord {
 }
 
 export default function FallingWords() {
+  const [difficulty, setDifficulty] = useState<Level>('medium');
   const [words, setWords] = useState<FallingWord[]>([]);
   const [score, setScore] = useState(0);
-  const [lives, setLives] = useState(5);
+  const [lives, setLives] = useState(LEVEL_TUNING.medium.lives);
   const [isPlaying, setIsPlaying] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [level, setLevel] = useState(1);
@@ -41,24 +42,29 @@ export default function FallingWords() {
   const frameRef = useRef(0);
   const lastSpawnRef = useRef(0);
 
+  const tuning = LEVEL_TUNING[difficulty];
+  const maxLives = tuning.lives;
+
   const spawnWord = useCallback(() => {
-    const wordText = WORD_BANK[Math.floor(Math.random() * WORD_BANK.length)];
+    const pool = filterWordsByLevel(WORD_BANK, difficulty);
+    const wordText = pool[Math.floor(Math.random() * pool.length)];
     const gameWidth = gameAreaRef.current?.clientWidth || 600;
     const newWord: FallingWord = {
       id: nextIdRef.current++,
       word: wordText,
       x: 40 + Math.random() * (gameWidth - 200),
       y: -30,
-      speed: 0.3 + level * 0.15 + Math.random() * 0.2,
+      speed: (0.3 + level * 0.15 + Math.random() * 0.2) * tuning.speed,
       typedSoFar: '',
     };
     setWords(prev => [...prev, newWord]);
-  }, [level]);
+  }, [level, difficulty, tuning.speed]);
 
-  const startGame = useCallback(() => {
+  const startGame = useCallback((d: Level = difficulty) => {
     setWords([]);
     setScore(0);
-    setLives(5);
+    setLives(LEVEL_TUNING[d].lives);
+
     setIsPlaying(true);
     setGameOver(false);
     setLevel(1);

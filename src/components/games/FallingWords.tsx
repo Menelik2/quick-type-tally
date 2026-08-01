@@ -172,7 +172,12 @@ export default function FallingWords() {
 
   return (
     <div className="space-y-6">
+      <div className="flex items-center justify-center">
+        <LevelSelect value={difficulty} onChange={changeDifficulty} />
+      </div>
+
       {/* Stats */}
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: 'Score', value: score, color: 'text-blue-600' },
@@ -191,7 +196,7 @@ export default function FallingWords() {
 
       {/* Lives */}
       <div className="flex justify-center gap-1">
-        {Array.from({ length: 5 }).map((_, i) => (
+        {Array.from({ length: maxLives }).map((_, i) => (
           <Heart key={i} className={`w-6 h-6 ${i < lives ? 'text-red-500 fill-red-500' : 'text-gray-300'}`} />
         ))}
       </div>
@@ -244,7 +249,7 @@ export default function FallingWords() {
                 ) : (
                   <div className="text-2xl font-bold text-white">Falling Words</div>
                 )}
-                <Button onClick={startGame} size="lg" className="gap-2">
+                <Button onClick={() => startGame()} size="lg" className="gap-2">
                   <RotateCcw className="w-5 h-5" />
                   {gameOver ? 'Play Again' : 'Start Game'}
                 </Button>

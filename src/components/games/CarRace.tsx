@@ -4,6 +4,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Car, RotateCcw, Flag, Trophy } from 'lucide-react';
 import { sfx } from '@/lib/sound';
 import { useGameRestart } from './GameShell';
+import { LevelSelect, filterWordsByLevel, type Level } from './levels';
+
+const RIVAL_WPM: Record<Level, number> = { easy: 30, medium: 45, hard: 65 };
 
 const WORD_POOL = [
   'engine', 'wheel', 'brake', 'gear', 'turbo', 'road', 'speed', 'drive', 'race', 'track',

@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { RotateCcw, Eye, EyeOff, Keyboard, Activity } from 'lucide-react';
 import { useGameRestart } from './GameShell';
+import { LevelSelect, poolByLevel, type Level } from './levels';
 
 const SAMPLE_TEXTS = [
   "The quick brown fox jumps over the lazy dog. This pangram contains every letter of the alphabet and has been used for decades to test typewriters and keyboards. It remains a popular choice for typing practice.",

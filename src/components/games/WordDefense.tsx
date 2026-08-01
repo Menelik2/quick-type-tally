@@ -79,8 +79,12 @@ export default function WordDefense() {
     setTimeout(() => setPopups(prev => prev.filter(p => p.id !== id)), 900);
   };
 
+  const tuning = LEVEL_TUNING[difficulty];
+  const maxHealth = tuning.health;
+
   const spawnEnemy = useCallback(() => {
-    const wordText = WORD_BANK[Math.floor(Math.random() * WORD_BANK.length)];
+    const pool = filterWordsByLevel(WORD_BANK, difficulty);
+    const wordText = pool[Math.floor(Math.random() * pool.length)];
     const w = gameAreaRef.current?.clientWidth || 800;
     const h = GAME_HEIGHT;
     centerRef.current = { x: w / 2, y: h / 2 };
@@ -93,7 +97,7 @@ export default function WordDefense() {
     const dx = centerRef.current.x - x;
     const dy = centerRef.current.y - y;
     const dist = Math.hypot(dx, dy) || 1;
-    const speed = 0.3 + level * 0.1 + Math.random() * 0.15;
+    const speed = (0.3 + level * 0.1 + Math.random() * 0.15) * tuning.speed;
     const enemy: Enemy = {
       id: nextIdRef.current++,
       word: wordText,
@@ -104,14 +108,14 @@ export default function WordDefense() {
       color: ENEMY_COLORS[Math.floor(Math.random() * ENEMY_COLORS.length)],
     };
     setEnemies(prev => [...prev, enemy]);
-  }, [level]);
+  }, [level, difficulty, tuning.speed]);
 
-  const startGame = useCallback(() => {
+  const startGame = useCallback((d: Level = difficulty) => {
     setEnemies([]);
     setZaps([]);
     setPopups([]);
     setScore(0);
-    setHealth(100);
+    setHealth(LEVEL_TUNING[d].health);
     setIsPlaying(true);
     setGameOver(false);
     setWon(false);
@@ -128,17 +132,23 @@ export default function WordDefense() {
     lastSpawnRef.current = 0;
     prevInputRef.current = '';
     setTimeout(() => inputRef.current?.focus(), 50);
-  }, []);
+  }, [difficulty]);
 
   useGameRestart(() => startGame());
+
+  const changeDifficulty = (d: Level) => {
+    setDifficulty(d);
+    startGame(d);
+  };
 
   useEffect(() => {
     if (!isPlaying || gameOver) return;
     const animate = (time: number) => {
-      if (time - lastSpawnRef.current > Math.max(1500 - level * 100, 500)) {
+      if (time - lastSpawnRef.current > Math.max(1500 - level * 100, 500) * tuning.spawn) {
         spawnEnemy();
         lastSpawnRef.current = time;
       }
+
       setEnemies(prev => {
         const updated = prev.map(e => ({ ...e, x: e.x + e.vx, y: e.y + e.vy }));
         const hits = updated.filter(e => Math.hypot(e.x - centerRef.current.x, e.y - centerRef.current.y) < 45);

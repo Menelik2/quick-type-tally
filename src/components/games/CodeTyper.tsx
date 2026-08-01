@@ -37,6 +37,7 @@ const LANGS: { key: Lang; label: string; color: string }[] = [
 ];
 
 export default function CodeTyper() {
+  const [level, setLevel] = useState<Level>('medium');
   const [lang, setLang] = useState<Lang>('javascript');
   const [target, setTarget] = useState('');
   const [input, setInput] = useState('');
@@ -47,8 +48,8 @@ export default function CodeTyper() {
   const lastRef = useRef('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const pick = useCallback((l: Lang) => {
-    const pool = SNIPPETS[l];
+  const pick = useCallback((l: Lang, lv: Level) => {
+    const pool = poolByLevel(SNIPPETS[l], lv);
     let choice = pool[Math.floor(Math.random() * pool.length)];
     let guard = 0;
     while (choice === lastRef.current && pool.length > 1 && guard < 8) {
@@ -59,15 +60,16 @@ export default function CodeTyper() {
     return choice;
   }, []);
 
-  const reset = useCallback((l: Lang = lang) => {
-    setTarget(pick(l));
+  const reset = useCallback((l: Lang = lang, lv: Level = level) => {
+    setTarget(pick(l, lv));
     setInput('');
     setStartedAt(null);
     setFinishedAt(null);
     setErrors(0);
     setTotalTyped(0);
     setTimeout(() => textareaRef.current?.focus(), 0);
-  }, [lang, pick]);
+  }, [lang, level, pick]);
+
 
   useGameRestart(() => reset());
 

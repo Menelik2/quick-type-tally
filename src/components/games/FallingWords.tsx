@@ -64,7 +64,6 @@ export default function FallingWords() {
     setWords([]);
     setScore(0);
     setLives(LEVEL_TUNING[d].lives);
-
     setIsPlaying(true);
     setGameOver(false);
     setLevel(1);
@@ -73,18 +72,24 @@ export default function FallingWords() {
     nextIdRef.current = 0;
     lastSpawnRef.current = 0;
     inputRef.current?.focus();
-  }, []);
+  }, [difficulty]);
 
   useGameRestart(() => startGame());
+
+  const changeDifficulty = (d: Level) => {
+    setDifficulty(d);
+    startGame(d);
+  };
 
   useEffect(() => {
     if (!isPlaying || gameOver) return;
 
     const animate = (time: number) => {
-      if (time - lastSpawnRef.current > Math.max(1200 - level * 80, 400)) {
+      if (time - lastSpawnRef.current > Math.max(1200 - level * 80, 400) * tuning.spawn) {
         spawnWord();
         lastSpawnRef.current = time;
       }
+
 
       setWords(prev => {
         const updated = prev.map(w => ({ ...w, y: w.y + w.speed }));

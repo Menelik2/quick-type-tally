@@ -256,6 +256,8 @@ export default function ClassicMode({ timeLimit: initialTimeLimit, monkeyMode: i
             </Button>
           ))}
         </div>
+        <LevelSelect value={level} onChange={changeLevel} />
+
         <div className="flex gap-2">
           <Button variant={!monkeyMode ? "default" : "outline"} size="sm" onClick={() => { if (monkeyMode) { setMonkeyMode(false); lastTextIndexRef.current = -1; setCurrentTextIndex(pickNextIndex(false)); resetTest(); } }} className="gap-2" title="Random paragraphs">
             <Keyboard className="w-4 h-4" />

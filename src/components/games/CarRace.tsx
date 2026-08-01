@@ -85,7 +85,7 @@ export default function CarRace() {
       setRemaining(left);
       // Opponent progresses linearly to reach ~TRACK_LEN in `duration * (OPPONENT_WPM / 60)` chars-per-min pace
       // Simpler: opponent finishes track in slightly more than duration -> steady progress
-      const oppRate = TRACK_LEN / duration; // % per second
+      const oppRate = (TRACK_LEN / duration) * (RIVAL_WPM[level] / OPPONENT_WPM); // % per second
       setOppPos(Math.min(TRACK_LEN, elapsed * oppRate));
       if (left === 0) {
         setFinished(true);
@@ -119,7 +119,7 @@ export default function CarRace() {
         // Advance: each character = ~1% of track, scaled to duration
         const advance = (word.length * 60) / (duration * OPPONENT_WPM * 5) * TRACK_LEN;
         setPlayerPos((p) => Math.min(TRACK_LEN, p + advance + (streak >= 5 ? advance * 0.3 : 0)));
-        setWord((prev) => pickWord(prev));
+        setWord((prev) => pickWord(prev, level));
         setTyped('');
         sfx.pop();
         if ((streak + 1) % 5 === 0) sfx.streak();
@@ -161,6 +161,8 @@ export default function CarRace() {
           <Car className="w-5 h-5 text-red-500" />
           <span className="text-sm font-semibold text-gray-700">Car Race</span>
         </div>
+        <LevelSelect value={level} onChange={changeLevel} />
+
         {DURATIONS.map((d) => (
           <Button key={d} size="sm" variant={duration === d ? 'default' : 'outline'} onClick={() => changeDuration(d)}>
             {d}s

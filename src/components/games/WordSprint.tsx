@@ -108,8 +108,8 @@ export default function WordSprint({ initialTimeLimit = 60 }: WordSprintProps) {
     }
   };
 
-  const resetTest = useCallback(() => {
-    setWords(getRandomWords(50));
+  const resetTest = useCallback((lv: Level = level) => {
+    setWords(getRandomWords(50, lv));
     setCurrentWordIndex(0);
     setUserInput('');
     setStartTime(null);
@@ -120,7 +120,7 @@ export default function WordSprint({ initialTimeLimit = 60 }: WordSprintProps) {
     setStreak(0);
     setWpm(0);
     inputRef.current?.focus();
-  }, [timeLimit]);
+  }, [timeLimit, level]);
 
   useGameRestart(() => resetTest());
 
@@ -128,6 +128,11 @@ export default function WordSprint({ initialTimeLimit = 60 }: WordSprintProps) {
     setTimeLimit(newLimit);
     setRemainingTime(newLimit);
     resetTest();
+  };
+
+  const changeLevel = (lv: Level) => {
+    setLevel(lv);
+    resetTest(lv);
   };
 
   const accuracy = totalTyped > 0 ? Math.round((correctWords / Math.max(1, currentWordIndex)) * 100) : 100;
@@ -145,6 +150,8 @@ export default function WordSprint({ initialTimeLimit = 60 }: WordSprintProps) {
             </Button>
           ))}
         </div>
+        <div className="w-px h-6 bg-border" />
+        <LevelSelect value={level} onChange={changeLevel} />
       </div>
 
       <Progress value={progress} className="h-2" />

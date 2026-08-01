@@ -267,12 +267,14 @@ export default function BubblePop() {
         ))}
       </div>
 
-      <div className="flex items-center justify-center gap-4">
+      <div className="flex items-center justify-center gap-4 flex-wrap">
+        <LevelSelect value={difficulty} onChange={changeDifficulty} />
         <div className="flex gap-1">
-          {Array.from({ length: 5 }).map((_, i) => (
+          {Array.from({ length: maxLives }).map((_, i) => (
             <Heart key={i} className={`w-6 h-6 transition-all ${i < lives ? 'text-red-500 fill-red-500' : 'text-gray-300'}`} />
           ))}
         </div>
+
         <Button variant="ghost" size="sm" onClick={() => setSoundOn(v => !v)} className="gap-1">
           {soundOn ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
           <span className="text-xs">{soundOn ? 'Sound On' : 'Muted'}</span>

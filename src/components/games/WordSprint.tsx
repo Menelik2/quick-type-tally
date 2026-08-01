@@ -212,7 +212,7 @@ export default function WordSprint({ initialTimeLimit = 60 }: WordSprintProps) {
           />
 
           <div className="flex justify-center gap-4">
-            <Button onClick={resetTest} variant="outline" className="gap-2">
+            <Button onClick={() => resetTest()} variant="outline" className="gap-2">
               <RotateCcw className="w-4 h-4" />
               Reset
             </Button>

@@ -355,7 +355,7 @@ export default function WordDefense() {
                           </div>
                         ))}
                       </div>
-                      <Button onClick={startGame} size="lg" className="w-full gap-2">
+                      <Button onClick={() => startGame()} size="lg" className="w-full gap-2">
                         <RotateCcw className="w-5 h-5" /> Play Again
                       </Button>
                     </CardContent>
@@ -364,7 +364,7 @@ export default function WordDefense() {
                   <div className="flex flex-col items-center gap-4">
                     <div className="text-3xl font-bold text-white">Word Defense</div>
                     <div className="text-sm text-gray-300">Type enemies to zap them. Defeat {WIN_DEFEATED} to win.</div>
-                    <Button onClick={startGame} size="lg" className="gap-2">
+                    <Button onClick={() => startGame()} size="lg" className="gap-2">
                       <RotateCcw className="w-5 h-5" /> Start Game
                     </Button>
                   </div>

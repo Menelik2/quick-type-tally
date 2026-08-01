@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { RotateCcw, Code2 } from 'lucide-react';
 import { useGameRestart } from './GameShell';
+import { LevelSelect, poolByLevel, type Level } from './levels';
 
 type Lang = 'javascript' | 'python' | 'html' | 'css';
 

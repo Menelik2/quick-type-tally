@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { RotateCcw, Shield, Volume2, VolumeX, Trophy, Skull } from 'lucide-react';
 import { sfx } from '@/lib/sound';
 import { useGameRestart } from './GameShell';
+import { LevelSelect, LEVEL_TUNING, filterWordsByLevel, type Level } from './levels';
 
 const WORD_BANK = [
   "attack", "shield", "sword", "guard", "fort", "wall", "tower", "castle", "arrow", "spear",
@@ -33,11 +34,12 @@ const GAME_HEIGHT = 620;
 const WIN_DEFEATED = 30;
 
 export default function WordDefense() {
+  const [difficulty, setDifficulty] = useState<Level>('medium');
   const [enemies, setEnemies] = useState<Enemy[]>([]);
   const [zaps, setZaps] = useState<Zap[]>([]);
   const [popups, setPopups] = useState<Popup[]>([]);
   const [score, setScore] = useState(0);
-  const [health, setHealth] = useState(100);
+  const [health, setHealth] = useState(LEVEL_TUNING.medium.health);
   const [isPlaying, setIsPlaying] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [won, setWon] = useState(false);

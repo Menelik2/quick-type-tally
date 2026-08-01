@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { RotateCcw, Heart, Volume2, VolumeX, Trophy, Flame } from 'lucide-react';
 import { sfx } from '@/lib/sound';
 import { useGameRestart } from './GameShell';
+import { LevelSelect, LEVEL_TUNING, filterWordsByLevel, type Level } from './levels';
 
 const WORD_BANK = [
   "bubble", "float", "pop", "rise", "sky", "cloud", "air", "wind", "blue", "soap",
@@ -40,11 +41,12 @@ const GAME_HEIGHT = 620;
 const WIN_SCORE = 1000;
 
 export default function BubblePop() {
+  const [difficulty, setDifficulty] = useState<Level>('medium');
   const [bubbles, setBubbles] = useState<Bubble[]>([]);
   const [bursts, setBursts] = useState<Burst[]>([]);
   const [popups, setPopups] = useState<Popup[]>([]);
   const [score, setScore] = useState(0);
-  const [lives, setLives] = useState(5);
+  const [lives, setLives] = useState(LEVEL_TUNING.medium.lives);
   const [isPlaying, setIsPlaying] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [won, setWon] = useState(false);

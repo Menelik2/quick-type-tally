@@ -133,7 +133,7 @@ export default function MonkeyMode() {
       });
       // extend word list if near end
       if (next > words.length - 20) {
-        setWords((w) => [...w, ...pickWords(60)]);
+        setWords((w) => [...w, ...pickWords(60, level)]);
       }
     } else if (e.key === 'Backspace') {
       e.preventDefault();
@@ -208,6 +208,8 @@ export default function MonkeyMode() {
               </Button>
             ))}
           </div>
+          <LevelSelect value={level} onChange={changeLevel} showIcon={false} />
+
           <Button size="sm" variant="outline" onClick={() => reset()} className="gap-2">
             <RotateCcw className="w-4 h-4" /> Reset
           </Button>

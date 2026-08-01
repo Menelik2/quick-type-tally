@@ -48,8 +48,8 @@ export default function CarRace() {
   const [streak, setStreak] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const reset = useCallback((d: number = duration) => {
-    setWord(pickWord(''));
+  const reset = useCallback((d: number = duration, lv: Level = level) => {
+    setWord(pickWord('', lv));
     setTyped('');
     setStartedAt(null);
     setRemaining(d);
@@ -61,7 +61,7 @@ export default function CarRace() {
     setWordsDone(0);
     setStreak(0);
     setTimeout(() => inputRef.current?.focus(), 0);
-  }, [duration]);
+  }, [duration, level]);
 
   useGameRestart(() => reset());
 
@@ -69,6 +69,12 @@ export default function CarRace() {
     setDuration(d);
     setTimeout(() => reset(d), 0);
   };
+
+  const changeLevel = (lv: Level) => {
+    setLevel(lv);
+    setTimeout(() => reset(duration, lv), 0);
+  };
+
 
   // Timer + opponent movement
   useEffect(() => {

@@ -47,28 +47,28 @@ export default function MonkeyMode() {
   const containerRef = useRef<HTMLDivElement>(null);
   const hiddenInputRef = useRef<HTMLInputElement>(null);
 
-  const reset = useCallback((d: number = duration) => {
-    setWords(pickWords(120));
+  const reset = useCallback((d: number = duration, lv: Level = level) => {
+    setWords(pickWords(120, lv));
     setTyped(['']);
     setCurrentIndex(0);
     setStartedAt(null);
     setRemaining(d);
     setFinished(false);
     setTimeout(() => hiddenInputRef.current?.focus(), 0);
-  }, [duration]);
+  }, [duration, level]);
 
   useGameRestart(() => reset());
 
   const changeDuration = (d: number) => {
     setDuration(d);
-    setWords(pickWords(120));
-    setTyped(['']);
-    setCurrentIndex(0);
-    setStartedAt(null);
-    setRemaining(d);
-    setFinished(false);
-    setTimeout(() => hiddenInputRef.current?.focus(), 0);
+    reset(d, level);
   };
+
+  const changeLevel = (lv: Level) => {
+    setLevel(lv);
+    reset(duration, lv);
+  };
+
 
   // Timer
   useEffect(() => {

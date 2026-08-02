@@ -37,83 +37,83 @@ export default function TypingTest() {
             <TabsList className="grid w-full grid-cols-5 md:grid-cols-10 max-w-full lg:max-w-6xl mx-auto h-auto p-1.5 gap-1 bg-white/70 backdrop-blur shadow-sm border rounded-xl">
 
 
-              <TabsTrigger value="classic" className="gap-2">
+              <TabsTrigger value="classic" className="gap-2 py-2.5 text-xs lg:text-sm data-[state=active]:shadow-sm">
                 <Keyboard className="w-4 h-4" />
                 <span className="hidden sm:inline">Classic</span>
               </TabsTrigger>
-              <TabsTrigger value="sprint" className="gap-2">
+              <TabsTrigger value="sprint" className="gap-2 py-2.5 text-xs lg:text-sm data-[state=active]:shadow-sm">
                 <Zap className="w-4 h-4" />
                 <span className="hidden sm:inline">Sprint</span>
               </TabsTrigger>
-              <TabsTrigger value="falling" className="gap-2">
+              <TabsTrigger value="falling" className="gap-2 py-2.5 text-xs lg:text-sm data-[state=active]:shadow-sm">
                 <Rocket className="w-4 h-4" />
                 <span className="hidden sm:inline">Falling</span>
               </TabsTrigger>
-              <TabsTrigger value="bubble" className="gap-2">
+              <TabsTrigger value="bubble" className="gap-2 py-2.5 text-xs lg:text-sm data-[state=active]:shadow-sm">
                 <Circle className="w-4 h-4" />
                 <span className="hidden sm:inline">Bubbles</span>
               </TabsTrigger>
-              <TabsTrigger value="defense" className="gap-2">
+              <TabsTrigger value="defense" className="gap-2 py-2.5 text-xs lg:text-sm data-[state=active]:shadow-sm">
                 <Shield className="w-4 h-4" />
                 <span className="hidden sm:inline">Defense</span>
               </TabsTrigger>
-              <TabsTrigger value="car" className="gap-2">
+              <TabsTrigger value="car" className="gap-2 py-2.5 text-xs lg:text-sm data-[state=active]:shadow-sm">
                 <Car className="w-4 h-4" />
                 <span className="hidden sm:inline">Car Race</span>
               </TabsTrigger>
-              <TabsTrigger value="monkey" className="gap-2">
+              <TabsTrigger value="monkey" className="gap-2 py-2.5 text-xs lg:text-sm data-[state=active]:shadow-sm">
                 <Banana className="w-4 h-4" />
                 <span className="hidden sm:inline">Monkey</span>
               </TabsTrigger>
-              <TabsTrigger value="amharic" className="gap-2">
+              <TabsTrigger value="amharic" className="gap-2 py-2.5 text-xs lg:text-sm data-[state=active]:shadow-sm">
                 <Languages className="w-4 h-4" />
                 <span className="hidden sm:inline">አማርኛ</span>
               </TabsTrigger>
-              <TabsTrigger value="code" className="gap-2">
+              <TabsTrigger value="code" className="gap-2 py-2.5 text-xs lg:text-sm data-[state=active]:shadow-sm">
                 <Code2 className="w-4 h-4" />
                 <span className="hidden sm:inline">Code</span>
               </TabsTrigger>
-              <TabsTrigger value="ninja" className="gap-2">
+              <TabsTrigger value="ninja" className="gap-2 py-2.5 text-xs lg:text-sm data-[state=active]:shadow-sm">
                 <Swords className="w-4 h-4" />
                 <span className="hidden sm:inline">Ninja</span>
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="classic" className="mt-6">
+            <TabsContent value="classic" className="mt-6 lg:mt-8 focus-visible:outline-none">
               <GameShell><ClassicMode timeLimit={60} monkeyMode={false} /></GameShell>
             </TabsContent>
-            <TabsContent value="sprint" className="mt-6">
+            <TabsContent value="sprint" className="mt-6 lg:mt-8 focus-visible:outline-none">
               <GameShell><WordSprint initialTimeLimit={60} /></GameShell>
             </TabsContent>
-            <TabsContent value="falling" className="mt-6">
+            <TabsContent value="falling" className="mt-6 lg:mt-8 focus-visible:outline-none">
               <GameShell><FallingWords /></GameShell>
             </TabsContent>
-            <TabsContent value="bubble" className="mt-6">
+            <TabsContent value="bubble" className="mt-6 lg:mt-8 focus-visible:outline-none">
               <GameShell><BubblePop /></GameShell>
             </TabsContent>
-            <TabsContent value="defense" className="mt-6">
+            <TabsContent value="defense" className="mt-6 lg:mt-8 focus-visible:outline-none">
               <GameShell><WordDefense /></GameShell>
             </TabsContent>
-            <TabsContent value="car" className="mt-6">
+            <TabsContent value="car" className="mt-6 lg:mt-8 focus-visible:outline-none">
               <GameShell><CarRace /></GameShell>
             </TabsContent>
-            <TabsContent value="monkey" className="mt-6">
+            <TabsContent value="monkey" className="mt-6 lg:mt-8 focus-visible:outline-none">
               <GameShell><MonkeyMode /></GameShell>
             </TabsContent>
-            <TabsContent value="amharic" className="mt-6">
+            <TabsContent value="amharic" className="mt-6 lg:mt-8 focus-visible:outline-none">
               <GameShell><AmharicMode /></GameShell>
             </TabsContent>
-            <TabsContent value="code" className="mt-6">
+            <TabsContent value="code" className="mt-6 lg:mt-8 focus-visible:outline-none">
               <GameShell><CodeTyper /></GameShell>
             </TabsContent>
-            <TabsContent value="ninja" className="mt-6">
+            <TabsContent value="ninja" className="mt-6 lg:mt-8 focus-visible:outline-none">
               <GameShell><NinjaMode /></GameShell>
             </TabsContent>
           </Tabs>
         </div>
       </div>
 
-      <footer className="text-center py-4 text-sm text-gray-500">
+      <footer className="text-center py-6 text-xs sm:text-sm text-muted-foreground border-t bg-white/40">
         By Menelik Admasu
       </footer>
     </div>

@@ -150,4 +150,20 @@ All colors MUST be HSL.
   .animate-shake { animation: shake 0.3s ease-in-out; }
   .animate-float-up { animation: float-up 0.9s ease-out forwards; }
   .animate-streak-glow { animation: streak-glow 0.8s ease-in-out; }
+
+  @keyframes caret-blink {
+    0%, 45% { opacity: 1; }
+    55%, 100% { opacity: 0; }
+  }
+  /* Typing caret rendered before the current character */
+  .caret {
+    position: absolute;
+    left: -1px;
+    top: 0.08em;
+    bottom: 0.08em;
+    width: 2px;
+    border-radius: 2px;
+    background: hsl(var(--primary));
+    animation: caret-blink 1s steps(1, end) infinite;
+  }
 }

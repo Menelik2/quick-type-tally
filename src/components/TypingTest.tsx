@@ -14,20 +14,28 @@ import GameShell from './games/GameShell';
 
 export default function TypingTest() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
       <div className="w-full px-6 lg:px-12 xl:px-20 py-8">
-        <div className="w-full max-w-[1600px] mx-auto space-y-6">
+        <div className="w-full max-w-[1600px] mx-auto space-y-8">
           {/* Header */}
-          <div className="text-center space-y-4">
+          <header className="text-center space-y-2">
             <div className="flex items-center justify-center gap-3">
-              <Keyboard className="w-8 h-8 text-blue-600" />
-              <h1 className="text-4xl font-bold text-gray-800">Yene Typing</h1>
+              <span className="grid place-items-center w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-emerald-500 text-white shadow-lg">
+                <Keyboard className="w-6 h-6" />
+              </span>
+              <h1 className="text-4xl lg:text-5xl font-bold tracking-tight bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">
+                Yene Typing
+              </h1>
             </div>
-          </div>
+            <p className="text-sm text-muted-foreground">
+              10 typing games · Easy / Medium / Hard · built for desktop keyboards
+            </p>
+          </header>
 
           {/* Game Tabs */}
           <Tabs defaultValue="classic" className="w-full">
-            <TabsList className="grid w-full grid-cols-5 md:grid-cols-10 max-w-7xl mx-auto">
+            <TabsList className="grid w-full grid-cols-5 md:grid-cols-10 max-w-7xl mx-auto h-auto p-1.5 gap-1 bg-white/70 backdrop-blur shadow-sm border">
+
               <TabsTrigger value="classic" className="gap-2">
                 <Keyboard className="w-4 h-4" />
                 <span className="hidden sm:inline">Classic</span>

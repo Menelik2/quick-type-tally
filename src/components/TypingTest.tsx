@@ -14,27 +14,28 @@ import GameShell from './games/GameShell';
 
 export default function TypingTest() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
-      <div className="w-full px-6 lg:px-12 xl:px-20 py-8">
-        <div className="w-full max-w-[1600px] mx-auto space-y-8">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-white to-blue-50">
+      <div className="flex-1 w-full px-4 sm:px-6 lg:px-10 xl:px-16 2xl:px-24 py-6 lg:py-10">
+        <div className="w-full max-w-[1200px] xl:max-w-[1440px] 2xl:max-w-[1680px] mx-auto space-y-6 lg:space-y-8">
           {/* Header */}
           <header className="text-center space-y-2">
             <div className="flex items-center justify-center gap-3">
-              <span className="grid place-items-center w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-emerald-500 text-white shadow-lg">
-                <Keyboard className="w-6 h-6" />
+              <span className="grid place-items-center w-10 h-10 lg:w-12 lg:h-12 shrink-0 rounded-xl bg-gradient-to-br from-blue-500 to-emerald-500 text-white shadow-lg">
+                <Keyboard className="w-5 h-5 lg:w-6 lg:h-6" />
               </span>
-              <h1 className="text-4xl lg:text-5xl font-bold tracking-tight bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">
+              <h1 className="text-3xl sm:text-4xl xl:text-5xl font-bold tracking-tight leading-none bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">
                 Yene Typing
               </h1>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs sm:text-sm text-muted-foreground">
               10 typing games · Easy / Medium / Hard · built for desktop keyboards
             </p>
           </header>
 
           {/* Game Tabs */}
           <Tabs defaultValue="classic" className="w-full">
-            <TabsList className="grid w-full grid-cols-5 md:grid-cols-10 max-w-7xl mx-auto h-auto p-1.5 gap-1 bg-white/70 backdrop-blur shadow-sm border">
+            <TabsList className="grid w-full grid-cols-5 md:grid-cols-10 max-w-full lg:max-w-6xl mx-auto h-auto p-1.5 gap-1 bg-white/70 backdrop-blur shadow-sm border rounded-xl">
+
 
               <TabsTrigger value="classic" className="gap-2">
                 <Keyboard className="w-4 h-4" />

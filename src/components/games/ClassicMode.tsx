@@ -128,8 +128,9 @@ export default function ClassicMode({ timeLimit: initialTimeLimit, monkeyMode: i
   useEffect(() => {
     if (!startTime || isComplete) return;
     const compute = () => {
-      const minutes = (Date.now() - startTime) / 60000;
-      if (minutes <= 0) return;
+      const elapsedMs = Date.now() - startTime;
+      if (elapsedMs < 1000) return; // avoid absurd WPM spikes in the first second
+      const minutes = elapsedMs / 60000;
       const next = Math.max(0, Math.round(stats.correct / 5 / minutes));
       setWpm(next);
       setBestWpm((b) => (next > b ? next : b));

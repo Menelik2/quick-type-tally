@@ -136,6 +136,7 @@ export default function GameShell({ children }: { children: ReactNode }) {
         </Button>
       </div>
       {children}
+      </div>
     </div>
   );
 }

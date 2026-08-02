@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { RotateCcw, Eye, EyeOff, Keyboard, Activity } from 'lucide-react';
+import { RotateCcw, Eye, EyeOff, Keyboard, Activity, MousePointerClick } from 'lucide-react';
 import { useGameRestart } from './GameShell';
 import { LevelSelect, poolByLevel, type Level } from './levels';
 
@@ -32,14 +32,6 @@ const MONKEY_PHRASES = [
   "tropical typing paradise"
 ];
 
-const WORD_LIST = [
-  "apple", "bridge", "castle", "dragon", "eagle", "forest", "garden", "harbor", "island", "jungle",
-  "knight", "lunar", "mirror", "noble", "ocean", "palace", "quest", "river", "shadow", "tower",
-  "unity", "valley", "wizard", "yellow", "zebra", "amber", "brave", "cloud", "dance", "ember",
-  "flame", "grace", "heart", "ivory", "jewel", "karma", "light", "magic", "night", "orbit",
-  "peace", "quiet", "rose", "storm", "train", "urban", "voice", "wave", "xenon", "yearn"
-];
-
 interface ClassicModeProps {
   timeLimit: number;
   monkeyMode: boolean;
@@ -51,112 +43,135 @@ export default function ClassicMode({ timeLimit: initialTimeLimit, monkeyMode: i
   const [startTime, setStartTime] = useState<number | null>(null);
   const [isComplete, setIsComplete] = useState(false);
   const [wpm, setWpm] = useState(0);
-  const [accuracy, setAccuracy] = useState(100);
   const [timeLimit, setTimeLimit] = useState(initialTimeLimit);
   const [remainingTime, setRemainingTime] = useState(initialTimeLimit);
   const [isTimeUp, setIsTimeUp] = useState(false);
   const [focusMode, setFocusMode] = useState(false);
   const [monkeyMode, setMonkeyMode] = useState(initialMonkeyMode);
-  const [streak, setStreak] = useState(0);
   const [bestWpm, setBestWpm] = useState(0);
-  const [errors, setErrors] = useState(0);
-  const [correctChars, setCorrectChars] = useState(0);
   const [level, setLevel] = useState<Level>('medium');
+  const [isFocused, setIsFocused] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
   const lastTextIndexRef = useRef<number>(-1);
 
-  const getPool = (mode: boolean, lv: Level) =>
-    poolByLevel(mode ? MONKEY_PHRASES : SAMPLE_TEXTS, lv);
+  const getPool = useCallback(
+    (mode: boolean, lv: Level) => poolByLevel(mode ? MONKEY_PHRASES : SAMPLE_TEXTS, lv),
+    []
+  );
 
-  const pickNextIndex = (mode: boolean, lv: Level = level) => {
-    const pool = getPool(mode, lv);
-    if (pool.length <= 1) return 0;
-    let next = Math.floor(Math.random() * pool.length);
-    while (next === lastTextIndexRef.current) {
-      next = Math.floor(Math.random() * pool.length);
-    }
-    lastTextIndexRef.current = next;
-    return next;
-  };
+  const pickNextIndex = useCallback(
+    (mode: boolean, lv: Level) => {
+      const pool = getPool(mode, lv);
+      if (pool.length <= 1) return 0;
+      let next = Math.floor(Math.random() * pool.length);
+      while (next === lastTextIndexRef.current) {
+        next = Math.floor(Math.random() * pool.length);
+      }
+      lastTextIndexRef.current = next;
+      return next;
+    },
+    [getPool]
+  );
 
   const activePool = getPool(monkeyMode, level);
-  const currentText = monkeyMode
-    ? activePool[currentTextIndex % activePool.length].repeat(3)
-    : activePool[currentTextIndex % activePool.length];
+  const rawText = activePool[currentTextIndex % activePool.length] ?? '';
+  const currentText = monkeyMode ? `${rawText} ${rawText} ${rawText}` : rawText;
 
-
-  useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
-    if (startTime && !isComplete && !isTimeUp) {
-      interval = setInterval(() => {
-        const elapsed = Math.floor((Date.now() - startTime) / 1000);
-        const timeLeft = Math.max(0, timeLimit - elapsed);
-        setRemainingTime(timeLeft);
-        if (timeLeft === 0) {
-          setIsTimeUp(true);
-          setIsComplete(true);
-        }
-      }, 1000);
+  const focusInput = useCallback(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    el.focus({ preventScroll: true });
+    const len = el.value.length;
+    try {
+      el.setSelectionRange(len, len);
+    } catch {
+      /* noop */
     }
-    return () => clearInterval(interval);
-  }, [startTime, isComplete, isTimeUp, timeLimit]);
+  }, []);
 
-  useEffect(() => {
-    if (!startTime || userInput.length === 0) return;
-    const timeElapsed = (Date.now() - startTime) / 1000 / 60;
-    const wordsTyped = userInput.length / 5;
-    const currentWpm = Math.round(wordsTyped / timeElapsed);
-    setWpm(currentWpm);
-    if (currentWpm > bestWpm) setBestWpm(currentWpm);
-
-    let correctCount = 0;
-    let errorCount = 0;
+  /* ---------- derived stats (single source of truth) ---------- */
+  const stats = useMemo(() => {
+    let correct = 0;
+    let errors = 0;
+    let streak = 0;
     for (let i = 0; i < userInput.length; i++) {
-      if (userInput[i] === currentText[i]) correctCount++;
-      else errorCount++;
+      if (userInput[i] === currentText[i]) {
+        correct++;
+        streak++;
+      } else {
+        errors++;
+        streak = 0;
+      }
     }
-    setCorrectChars(correctCount);
-    setErrors(errorCount);
-    const currentAccuracy = userInput.length > 0 ? Math.round((correctCount / userInput.length) * 100) : 100;
-    setAccuracy(currentAccuracy);
+    const accuracy = userInput.length > 0 ? Math.round((correct / userInput.length) * 100) : 100;
+    return { correct, errors, streak, accuracy };
+  }, [userInput, currentText]);
 
-    if (userInput.length > 0 && userInput[userInput.length - 1] === currentText[userInput.length - 1]) {
-      setStreak(prev => prev + 1);
-    } else if (userInput.length > 0) {
-      setStreak(0);
-    }
+  /* ---------- timer ---------- */
+  useEffect(() => {
+    if (!startTime || isComplete) return;
+    const tick = () => {
+      const elapsed = (Date.now() - startTime) / 1000;
+      const timeLeft = Math.max(0, timeLimit - elapsed);
+      setRemainingTime(Math.ceil(timeLeft));
+      if (timeLeft <= 0) {
+        setIsTimeUp(true);
+        setIsComplete(true);
+      }
+    };
+    tick();
+    const interval = setInterval(tick, 200);
+    return () => clearInterval(interval);
+  }, [startTime, isComplete, timeLimit]);
 
-    if (userInput.length === currentText.length && !isTimeUp) {
+  /* ---------- live WPM (net WPM from correct characters) ---------- */
+  useEffect(() => {
+    if (!startTime || isComplete) return;
+    const compute = () => {
+      const minutes = (Date.now() - startTime) / 60000;
+      if (minutes <= 0) return;
+      const next = Math.max(0, Math.round(stats.correct / 5 / minutes));
+      setWpm(next);
+      setBestWpm((b) => (next > b ? next : b));
+    };
+    compute();
+    const id = setInterval(compute, 400);
+    return () => clearInterval(id);
+  }, [startTime, isComplete, stats.correct]);
+
+  /* ---------- completion ---------- */
+  useEffect(() => {
+    if (!isTimeUp && userInput.length > 0 && userInput.length === currentText.length) {
       setIsComplete(true);
     }
-  }, [userInput, startTime, currentText, isTimeUp, bestWpm]);
+  }, [userInput, currentText, isTimeUp]);
+
+  const resetTest = useCallback(
+    (limit?: number, lv: Level = level, mode: boolean = monkeyMode) => {
+      setUserInput('');
+      setStartTime(null);
+      setIsComplete(false);
+      setIsTimeUp(false);
+      setWpm(0);
+      setRemainingTime(limit ?? timeLimit);
+      setCurrentTextIndex(pickNextIndex(mode, lv));
+      requestAnimationFrame(focusInput);
+    },
+    [level, monkeyMode, timeLimit, pickNextIndex, focusInput]
+  );
+
+  useGameRestart(() => resetTest());
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isComplete) return;
     const value = e.target.value;
-    if (isTimeUp || isComplete) return;
-    if (value.length === 1 && !startTime) setStartTime(Date.now());
+    if (!startTime && value.length > 0) setStartTime(Date.now());
     if (value.length <= currentText.length) setUserInput(value);
   };
 
   const changeTimeLimit = (newLimit: number) => {
     setTimeLimit(newLimit);
-    setRemainingTime(newLimit);
     resetTest(newLimit);
-  };
-
-  const resetTest = (limit?: number, lv: Level = level) => {
-    setUserInput('');
-    setStartTime(null);
-    setIsComplete(false);
-    setIsTimeUp(false);
-    setWpm(0);
-    setAccuracy(100);
-    setStreak(0);
-    setErrors(0);
-    setCorrectChars(0);
-    setRemainingTime(limit ?? timeLimit);
-    setCurrentTextIndex(pickNextIndex(monkeyMode, lv));
-    inputRef.current?.focus();
   };
 
   const changeLevel = (lv: Level) => {
@@ -165,81 +180,131 @@ export default function ClassicMode({ timeLimit: initialTimeLimit, monkeyMode: i
     resetTest(undefined, lv);
   };
 
-
-  useGameRestart(() => resetTest());
-
-  const toggleFocusMode = () => {
-    setFocusMode(!focusMode);
+  const changeMode = (mode: boolean) => {
+    if (mode === monkeyMode) return;
+    setMonkeyMode(mode);
+    lastTextIndexRef.current = -1;
+    resetTest(undefined, level, mode);
   };
 
-  const renderText = () => {
-    return currentText.split('').map((char, index) => {
-      let className = 'transition-all duration-150';
-      if (index < userInput.length) {
-        if (userInput[index] === char) className += ' text-green-500 bg-green-50';
-        else className += ' text-red-500 bg-red-50';
-      } else if (index === userInput.length) {
-        className += ' bg-blue-200 animate-pulse';
-      } else {
-        className += ' text-muted-foreground';
-      }
-      return <span key={index} className={className}>{char}</span>;
-    });
-  };
+  const toggleFocusMode = () => setFocusMode((f) => !f);
 
+  /* ---------- initial text ---------- */
   useEffect(() => {
-    inputRef.current?.focus();
-    const initial = pickNextIndex(initialMonkeyMode);
-    setCurrentTextIndex(initial);
+    setCurrentTextIndex(pickNextIndex(initialMonkeyMode, 'medium'));
+    requestAnimationFrame(focusInput);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Keyboard shortcuts: Tab/Esc to reset, Ctrl/Cmd+M toggle mode, Ctrl/Cmd+F focus
+  /* ---------- desktop shortcuts ---------- */
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        // Esc is reserved for leaving fullscreen / focus mode first
+        if (document.fullscreenElement) return;
         e.preventDefault();
-        resetTest();
+        if (focusMode) setFocusMode(false);
+        else resetTest();
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'm') {
         e.preventDefault();
-        setMonkeyMode(prev => {
-          const next = !prev;
-          setUserInput('');
-          setStartTime(null);
-          setIsComplete(false);
-          setIsTimeUp(false);
-          setWpm(0);
-          setAccuracy(100);
-          setStreak(0);
-          setErrors(0);
-          setCorrectChars(0);
-          setRemainingTime(timeLimit);
-          setCurrentTextIndex(pickNextIndex(next));
-          inputRef.current?.focus();
-          return next;
-        });
+        changeMode(!monkeyMode);
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
         e.preventDefault();
-        setFocusMode(f => !f);
+        setFocusMode((f) => !f);
       }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [timeLimit]);
+  });
 
-  if (focusMode && startTime && !isComplete) {
+  /* ---------- passage rendering (word-aware, no mid-word wraps) ---------- */
+  const renderPassage = (size: 'normal' | 'large') => {
+    const words: { text: string; start: number }[] = [];
+    let cursor = 0;
+    currentText.split(' ').forEach((w, i, arr) => {
+      const text = i < arr.length - 1 ? `${w} ` : w;
+      words.push({ text, start: cursor });
+      cursor += text.length;
+    });
+
     return (
-      <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-8">
-        <div className="w-full max-w-4xl mx-auto space-y-8">
-          <div className="flex justify-between items-center text-sm text-gray-400">
-            <div>WPM: {wpm}</div>
-            <div>Time: {remainingTime}s</div>
-            <div>Accuracy: {accuracy}%</div>
-            <Button variant="ghost" size="sm" onClick={toggleFocusMode} className="text-gray-400 hover:text-white">
-              <Eye className="w-4 h-4" />
+      <div
+        className={`flex flex-wrap font-mono leading-relaxed ${
+          size === 'large' ? 'text-3xl gap-y-3' : 'text-2xl gap-y-2'
+        }`}
+      >
+        {words.map((word, wi) => (
+          <span key={wi} className="whitespace-pre">
+            {word.text.split('').map((char, ci) => {
+              const index = word.start + ci;
+              const typed = index < userInput.length;
+              const isCurrent = index === userInput.length;
+              let cls = 'relative rounded-sm transition-colors duration-75';
+              if (typed) {
+                cls +=
+                  userInput[index] === char
+                    ? ' text-emerald-600'
+                    : ' text-red-500 bg-red-500/10 underline decoration-red-400 decoration-2';
+              } else {
+                cls += size === 'large' ? ' text-slate-500' : ' text-slate-400';
+              }
+              return (
+                <span key={ci} className={cls}>
+                  {isCurrent && <span className="caret" aria-hidden="true" />}
+                  {char}
+                </span>
+              );
+            })}
+          </span>
+        ))}
+      </div>
+    );
+  };
+
+  const progress = currentText.length > 0 ? (userInput.length / currentText.length) * 100 : 0;
+
+  const hiddenInput = (
+    <input
+      ref={inputRef}
+      type="text"
+      value={userInput}
+      onChange={handleInputChange}
+      onFocus={() => setIsFocused(true)}
+      onBlur={() => setIsFocused(false)}
+      autoComplete="off"
+      autoCorrect="off"
+      autoCapitalize="off"
+      spellCheck={false}
+      aria-label="Typing input"
+      className="absolute inset-0 w-full h-full opacity-0 cursor-text"
+    />
+  );
+
+  /* ---------- focus (zen) mode ---------- */
+  if (focusMode) {
+    return (
+      <div className="fixed inset-0 z-50 bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-10">
+        <div className="w-full max-w-5xl space-y-10">
+          <div className="flex items-center justify-between text-sm text-slate-400">
+            <div className="flex gap-8 font-mono">
+              <span>{wpm} wpm</span>
+              <span>{stats.accuracy}% acc</span>
+              <span>{remainingTime}s</span>
+            </div>
+            <Button variant="ghost" size="sm" onClick={toggleFocusMode} className="text-slate-400 hover:text-slate-100 gap-2">
+              <EyeOff className="w-4 h-4" /> Exit focus (Esc)
             </Button>
           </div>
-          <div className="text-2xl leading-relaxed font-mono text-center px-8">{renderText()}</div>
-          <input ref={inputRef} type="text" value={userInput} onChange={handleInputChange} className="sr-only" autoFocus />
+          <div className="relative cursor-text" onMouseDown={(e) => { e.preventDefault(); focusInput(); }}>
+            <div className={isFocused ? '' : 'blur-sm transition-all'}>{renderPassage('large')}</div>
+            {!isFocused && (
+              <div className="absolute inset-0 flex items-center justify-center text-slate-300 gap-2 text-sm">
+                <MousePointerClick className="w-4 h-4" /> Click here to keep typing
+              </div>
+            )}
+            {hiddenInput}
+          </div>
+          <Progress value={progress} className="h-1" />
         </div>
       </div>
     );
@@ -248,99 +313,124 @@ export default function ClassicMode({ timeLimit: initialTimeLimit, monkeyMode: i
   return (
     <div className="space-y-6">
       {/* Controls */}
-      <div className="flex items-center justify-center gap-4 flex-wrap">
-        <div className="flex gap-2">
+      <div className="flex items-center justify-center gap-3 flex-wrap">
+        <div className="flex gap-1 p-1 rounded-lg bg-muted">
           {[15, 30, 60, 120].map((time) => (
-            <Button key={time} variant={timeLimit === time ? "default" : "outline"} size="sm" onClick={() => changeTimeLimit(time)}>
+            <Button
+              key={time}
+              variant={timeLimit === time ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => changeTimeLimit(time)}
+            >
               {time}s
             </Button>
           ))}
         </div>
         <LevelSelect value={level} onChange={changeLevel} />
-
         <div className="flex gap-2">
-          <Button variant={!monkeyMode ? "default" : "outline"} size="sm" onClick={() => { if (monkeyMode) { setMonkeyMode(false); lastTextIndexRef.current = -1; setCurrentTextIndex(pickNextIndex(false)); resetTest(); } }} className="gap-2" title="Random paragraphs">
+          <Button variant={!monkeyMode ? 'default' : 'outline'} size="sm" onClick={() => changeMode(false)} className="gap-2" title="Random paragraphs">
             <Keyboard className="w-4 h-4" />
             Paragraphs
           </Button>
-          <Button variant={monkeyMode ? "default" : "outline"} size="sm" onClick={() => { if (!monkeyMode) { setMonkeyMode(true); lastTextIndexRef.current = -1; setCurrentTextIndex(pickNextIndex(true)); resetTest(); } }} className="gap-2" title="Fun phrases">
+          <Button variant={monkeyMode ? 'default' : 'outline'} size="sm" onClick={() => changeMode(true)} className="gap-2" title="Fun phrases">
             <Activity className="w-4 h-4" />
             Fun Phrases
           </Button>
-          <Button variant={focusMode ? "default" : "outline"} size="sm" onClick={toggleFocusMode} className="gap-2" title="Focus mode (Ctrl+F)">
-            {focusMode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          <Button variant="outline" size="sm" onClick={toggleFocusMode} className="gap-2" title="Focus mode (Ctrl+F)">
+            <Eye className="w-4 h-4" />
             Focus
           </Button>
         </div>
       </div>
-      <div className="text-center text-xs text-gray-500">
-        Shortcuts: <kbd className="px-1.5 py-0.5 bg-gray-100 border rounded">Esc</kbd> reset · <kbd className="px-1.5 py-0.5 bg-gray-100 border rounded">Ctrl</kbd>+<kbd className="px-1.5 py-0.5 bg-gray-100 border rounded">M</kbd> toggle mode · <kbd className="px-1.5 py-0.5 bg-gray-100 border rounded">Ctrl</kbd>+<kbd className="px-1.5 py-0.5 bg-gray-100 border rounded">F</kbd> focus
+      <div className="text-center text-xs text-muted-foreground">
+        Shortcuts: <kbd className="px-1.5 py-0.5 bg-muted border rounded">Esc</kbd> reset ·{' '}
+        <kbd className="px-1.5 py-0.5 bg-muted border rounded">Ctrl</kbd>+
+        <kbd className="px-1.5 py-0.5 bg-muted border rounded">M</kbd> switch text ·{' '}
+        <kbd className="px-1.5 py-0.5 bg-muted border rounded">Ctrl</kbd>+
+        <kbd className="px-1.5 py-0.5 bg-muted border rounded">F</kbd> focus mode
       </div>
 
-      <Progress value={(userInput.length / currentText.length) * 100} className="h-2" />
+      <Progress value={progress} className="h-2" />
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
         {[
           { label: 'WPM', value: wpm, color: 'text-blue-600' },
-          { label: 'Accuracy', value: `${accuracy}%`, color: accuracy >= 95 ? 'text-green-600' : accuracy >= 80 ? 'text-yellow-600' : 'text-red-600' },
-          { label: 'Time', value: remainingTime, color: 'text-purple-600' },
-          { label: 'Correct', value: correctChars, color: 'text-green-600' },
-          { label: 'Errors', value: errors, color: 'text-red-600' },
-          { label: 'Streak', value: streak, color: 'text-orange-600' },
+          {
+            label: 'Accuracy',
+            value: `${stats.accuracy}%`,
+            color: stats.accuracy >= 95 ? 'text-emerald-600' : stats.accuracy >= 80 ? 'text-amber-600' : 'text-red-600',
+          },
+          { label: 'Time', value: `${remainingTime}s`, color: 'text-purple-600' },
+          { label: 'Correct', value: stats.correct, color: 'text-emerald-600' },
+          { label: 'Errors', value: stats.errors, color: 'text-red-600' },
+          { label: 'Streak', value: stats.streak, color: 'text-orange-600' },
           { label: 'Best', value: bestWpm, color: 'text-amber-600' },
         ].map((stat) => (
           <Card key={stat.label} className="text-center border-0 shadow-sm">
             <CardContent className="p-4">
-              <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
+              <div className={`text-2xl font-bold tabular-nums ${stat.color}`}>{stat.value}</div>
               <div className="text-xs text-muted-foreground">{stat.label}</div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Typing Area */}
+      {/* Typing Area — click anywhere on the text to type */}
       <Card className="border-0 shadow-sm">
-        <CardContent className="p-8 space-y-6">
-          <div className="relative p-6 bg-gray-50 rounded-lg">
-            <div className="text-lg leading-relaxed font-mono">{renderText()}</div>
-            <div className="absolute top-2 right-2 text-xs text-gray-400">
-              {Math.round((userInput.length / currentText.length) * 100)}%
+        <CardContent className="p-6 lg:p-10 space-y-6">
+          <div
+            className="relative rounded-xl bg-muted/40 p-6 lg:p-10 cursor-text ring-1 ring-transparent focus-within:ring-primary/40 transition"
+            onMouseDown={(e) => {
+              e.preventDefault();
+              focusInput();
+            }}
+          >
+            <div className={isFocused || isComplete ? '' : 'blur-[3px] transition-all select-none'}>
+              {renderPassage('normal')}
+            </div>
+            {!isFocused && !isComplete && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="flex items-center gap-2 rounded-full bg-background/90 px-4 py-2 text-sm font-medium shadow">
+                  <MousePointerClick className="w-4 h-4" /> Click here or press any key to start typing
+                </span>
+              </div>
+            )}
+            {!isComplete && hiddenInput}
+            <div className="absolute top-2 right-3 text-xs text-muted-foreground tabular-nums">
+              {Math.round(progress)}%
             </div>
           </div>
-          <input
-            ref={inputRef}
-            type="text"
-            value={userInput}
-            onChange={handleInputChange}
-            disabled={isComplete}
-            placeholder={isComplete ? "Test completed!" : "Start typing here..."}
-            className="w-full p-4 text-lg border border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 disabled:opacity-50"
-          />
-          <div className="flex justify-center gap-4">
+
+          <div className="flex justify-center gap-3">
             <Button onClick={() => resetTest()} variant="outline" className="gap-2">
               <RotateCcw className="w-4 h-4" />
-              Reset
+              Restart
             </Button>
             <Button onClick={toggleFocusMode} variant="outline" className="gap-2">
               <Eye className="w-4 h-4" />
               Focus Mode
             </Button>
           </div>
+
           {isComplete && (
-            <div className="text-center p-6 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
-              <div className="text-xl font-bold text-gray-800 mb-2">
-                {isTimeUp ? "Time's up!" : "Test Complete!"}
+            <div className="text-center p-6 rounded-xl bg-gradient-to-r from-emerald-50 to-blue-50 border border-emerald-200 animate-scale-in">
+              <div className="text-xl font-bold text-slate-800 mb-3">
+                {isTimeUp ? "Time's up!" : 'Test Complete!'}
               </div>
-              <div className="text-gray-600">
-                Final speed: <span className="font-semibold text-blue-600">{wpm} WPM</span> |
-                Accuracy: <span className="font-semibold text-green-600">{accuracy}%</span>
+              <div className="flex flex-wrap justify-center gap-6 text-sm text-slate-600">
+                <span>Speed <span className="font-semibold text-blue-600">{wpm} WPM</span></span>
+                <span>Accuracy <span className="font-semibold text-emerald-600">{stats.accuracy}%</span></span>
+                <span>Correct <span className="font-semibold text-emerald-600">{stats.correct}</span></span>
+                <span>Errors <span className="font-semibold text-red-600">{stats.errors}</span></span>
+                <span>Best <span className="font-semibold text-amber-600">{bestWpm} WPM</span></span>
               </div>
               {monkeyMode && (
-                <div className="mt-2 text-sm text-amber-600">
-                  Banana count: {Math.floor(wpm / 10)} bananas!
-                </div>
+                <div className="mt-3 text-sm text-amber-600">Banana count: {Math.floor(wpm / 10)} bananas!</div>
               )}
+              <Button onClick={() => resetTest()} className="mt-4 gap-2">
+                <RotateCcw className="w-4 h-4" /> Next passage (Enter)
+              </Button>
             </div>
           )}
         </CardContent>

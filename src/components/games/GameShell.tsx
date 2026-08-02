@@ -113,12 +113,13 @@ export default function GameShell({ children }: { children: ReactNode }) {
       ref={ref}
       className={
         fs
-          ? 'w-screen h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6 overflow-auto'
+          ? 'w-screen h-screen bg-gradient-to-br from-slate-50 to-blue-50 px-6 py-6 lg:px-10 xl:px-16 2xl:px-24 overflow-auto grid place-items-start'
           : ''
       }
     >
-      <div className="flex flex-wrap items-center justify-end gap-2 mb-3">
-        <span className="text-xs text-muted-foreground hidden md:inline">
+      <div className={fs ? 'w-full max-w-[1500px] mx-auto' : 'w-full'}>
+      <div className="flex flex-wrap items-center justify-end gap-2 mb-3 lg:mb-4">
+        <span className="text-xs text-muted-foreground hidden lg:inline mr-auto">
           <kbd className="px-1.5 py-0.5 border rounded bg-white text-[10px]">Enter</kbd>{' '}
           restart ·{' '}
           <kbd className="px-1.5 py-0.5 border rounded bg-white text-[10px]">Shift+Enter</kbd>{' '}

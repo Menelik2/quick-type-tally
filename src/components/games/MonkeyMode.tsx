@@ -41,9 +41,11 @@ export default function MonkeyMode() {
   const [typed, setTyped] = useState<string[]>(['']); // typed[i] = what user typed for word i
   const [currentIndex, setCurrentIndex] = useState(0);
   const [startedAt, setStartedAt] = useState<number | null>(null);
+  const [endedAt, setEndedAt] = useState<number | null>(null);
   const [remaining, setRemaining] = useState(30);
   const [finished, setFinished] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [focused, setFocused] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const hiddenInputRef = useRef<HTMLInputElement>(null);
 
@@ -52,10 +54,12 @@ export default function MonkeyMode() {
     setTyped(['']);
     setCurrentIndex(0);
     setStartedAt(null);
+    setEndedAt(null);
     setRemaining(d);
     setFinished(false);
     setTimeout(() => hiddenInputRef.current?.focus(), 0);
   }, [duration, level]);
+
 
   useGameRestart(() => reset());
 
@@ -77,7 +81,10 @@ export default function MonkeyMode() {
       const elapsed = Math.floor((Date.now() - startedAt) / 1000);
       const left = Math.max(0, duration - elapsed);
       setRemaining(left);
-      if (left === 0) setFinished(true);
+      if (left === 0) {
+        setEndedAt(startedAt + duration * 1000);
+        setFinished(true);
+      }
     }, 100);
     return () => clearInterval(id);
   }, [startedAt, duration, finished]);
@@ -113,54 +120,101 @@ export default function MonkeyMode() {
     setTimeout(() => hiddenInputRef.current?.focus(), 50);
   };
 
-  const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (finished) return;
+  type KeyLike = Pick<KeyboardEvent, 'key' | 'ctrlKey' | 'metaKey' | 'altKey'> & {
+    preventDefault: () => void;
+  };
 
-    // Start on first keystroke
-    if (!startedAt && e.key.length === 1) {
-      setStartedAt(Date.now());
+  const handleKey = (e: KeyLike) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+      else reset();
+      return;
     }
+
+    // Ignore browser/OS shortcuts entirely
+    if (e.ctrlKey || e.metaKey || e.altKey) {
+      if (e.key === 'Backspace') {
+        // Ctrl/Alt+Backspace clears the current word
+        e.preventDefault();
+        setTyped((t) => {
+          const copy = [...t];
+          copy[currentIndex] = '';
+          return copy;
+        });
+      }
+      return;
+    }
+
+    if (finished) return;
 
     if (e.key === ' ') {
       e.preventDefault();
+      // Don't advance on leading/double spaces
       if ((typed[currentIndex] ?? '').length === 0) return;
-      const next = currentIndex + 1;
-      setCurrentIndex(next);
-      setTyped((t) => {
-        const copy = [...t];
-        if (copy.length <= next) copy.push('');
-        return copy;
+      if (!startedAt) setStartedAt(Date.now());
+      setCurrentIndex((i) => {
+        const next = i + 1;
+        setTyped((t) => (t.length <= next ? [...t, ''] : t));
+        return next;
       });
-      // extend word list if near end
-      if (next > words.length - 20) {
+      // extend word list when nearing the end of the pool
+      if (currentIndex + 1 > words.length - 30) {
         setWords((w) => [...w, ...pickWords(60, level)]);
       }
-    } else if (e.key === 'Backspace') {
+      return;
+    }
+
+    if (e.key === 'Backspace') {
       e.preventDefault();
+      if ((typed[currentIndex] ?? '').length > 0) {
+        setTyped((t) => {
+          const copy = [...t];
+          copy[currentIndex] = (copy[currentIndex] ?? '').slice(0, -1);
+          return copy;
+        });
+      } else if (currentIndex > 0) {
+        setCurrentIndex(currentIndex - 1);
+      }
+      return;
+    }
+
+    // Single printable character
+    if (e.key.length === 1) {
+      e.preventDefault();
+      if (!startedAt) setStartedAt(Date.now());
+      const limit = (words[currentIndex]?.length ?? 0) + 8;
       setTyped((t) => {
         const copy = [...t];
         const cur = copy[currentIndex] ?? '';
-        if (cur.length > 0) {
-          copy[currentIndex] = cur.slice(0, -1);
-        } else if (currentIndex > 0) {
-          // jump back to previous word
-          setCurrentIndex(currentIndex - 1);
-        }
+        if (cur.length >= limit) return t; // stop runaway overflow
+        copy[currentIndex] = cur + e.key;
         return copy;
       });
-    } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
-      e.preventDefault();
-      setTyped((t) => {
-        const copy = [...t];
-        copy[currentIndex] = (copy[currentIndex] ?? '') + e.key;
-        return copy;
-      });
-    }
-
-    if (e.key === 'Escape') {
-      reset();
     }
   };
+
+  // Typing anywhere on the page works: focus the hidden input and use the keystroke
+  useEffect(() => {
+    const onWindowKey = (e: KeyboardEvent) => {
+      const input = hiddenInputRef.current;
+      if (!input || document.activeElement === input) return;
+      const el = document.activeElement as HTMLElement | null;
+      if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) return;
+      const printable = e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey;
+      if (!printable && e.key !== 'Backspace') return;
+      e.preventDefault();
+      input.focus({ preventScroll: true });
+      handleKey(e);
+    };
+    window.addEventListener('keydown', onWindowKey);
+    return () => window.removeEventListener('keydown', onWindowKey);
+  });
+
+  // Keep the caret in the typing field while a round is running
+  useEffect(() => {
+    hiddenInputRef.current?.focus({ preventScroll: true });
+  }, []);
 
   // Stats
   const stats = (() => {
@@ -177,12 +231,18 @@ export default function MonkeyMode() {
       }
     }
     const totalChars = correctChars + incorrectChars;
-    const elapsed = startedAt ? (Date.now() - startedAt) / 1000 : 0;
-    const minutes = elapsed / 60;
-    const wpm = minutes > 0 ? Math.round((correctChars / 5) / minutes) : 0;
+    const now = endedAt ?? Date.now();
+    const elapsed = startedAt ? (now - startedAt) / 1000 : 0;
+    // Below 2s the WPM figure is meaningless and spikes wildly
+    const wpm = elapsed >= 2 ? Math.round((correctChars / 5) / (elapsed / 60)) : 0;
     const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 100;
     return { wpm, accuracy, correctWords, correctChars, incorrectChars };
   })();
+
+  // Scrolling window of words so long rounds don't grow the canvas endlessly
+  const windowStart = Math.max(0, currentIndex - 12);
+
+
 
   return (
     <div
@@ -242,43 +302,61 @@ export default function MonkeyMode() {
             className={`${isFullscreen ? 'p-12 min-h-[60vh]' : 'p-8'} cursor-text`}
             onClick={() => hiddenInputRef.current?.focus()}
           >
-            <div
-              className={`font-mono leading-relaxed flex flex-wrap gap-x-3 gap-y-2 ${isFullscreen ? 'text-4xl' : 'text-2xl'}`}
-            >
-              {words.slice(0, currentIndex + 40).map((word, wi) => {
-                const t = typed[wi] ?? '';
-                const isCurrent = wi === currentIndex;
-                const chars = word.split('').map((ch, ci) => {
-                  let cls = isFullscreen ? 'text-amber-100/40' : 'text-gray-400';
-                  if (ci < t.length) {
-                    cls = t[ci] === ch ? (isFullscreen ? 'text-green-400' : 'text-green-600') : (isFullscreen ? 'text-red-400 underline' : 'text-red-500 underline');
-                  }
-                  if (isCurrent && ci === t.length) {
-                    cls += ' border-l-2 border-amber-400 animate-pulse';
-                  }
-                  return <span key={ci} className={cls}>{ch}</span>;
-                });
-                // extra typed chars beyond target
-                const extras = t.slice(word.length).split('').map((ch, i) => (
-                  <span key={`ex-${i}`} className={isFullscreen ? 'text-red-400/70' : 'text-red-400'}>{ch}</span>
-                ));
-                return (
-                  <span key={wi} className="whitespace-nowrap">
-                    {chars}
-                    {extras}
-                  </span>
-                );
-              })}
+            <div className="relative">
+              <div
+                className={`font-mono leading-relaxed flex flex-wrap gap-x-3 gap-y-2 transition-[filter] ${isFullscreen ? 'text-4xl' : 'text-2xl'} ${!focused && !finished ? 'blur-sm select-none' : ''}`}
+              >
+                {words.slice(windowStart, windowStart + 60).map((word, i) => {
+                  const wi = windowStart + i;
+                  const t = typed[wi] ?? '';
+                  const isCurrent = wi === currentIndex;
+                  const chars = word.split('').map((ch, ci) => {
+                    let cls = isFullscreen ? 'text-amber-100/40' : 'text-gray-400';
+                    if (ci < t.length) {
+                      cls = t[ci] === ch ? (isFullscreen ? 'text-green-400' : 'text-green-600') : (isFullscreen ? 'text-red-400 underline' : 'text-red-500 underline');
+                    }
+                    if (isCurrent && ci === t.length) {
+                      cls += ' border-l-2 border-amber-400 animate-pulse';
+                    }
+                    return <span key={ci} className={cls}>{ch}</span>;
+                  });
+                  // extra typed chars beyond target
+                  const extras = t.slice(word.length).split('').map((ch, ei) => (
+                    <span key={`ex-${ei}`} className={isFullscreen ? 'text-red-400/70' : 'text-red-400'}>{ch}</span>
+                  ));
+                  return (
+                    <span key={wi} className="whitespace-nowrap">
+                      {chars}
+                      {extras}
+                      {isCurrent && t.length >= word.length && (
+                        <span className="border-l-2 border-amber-400 animate-pulse">&nbsp;</span>
+                      )}
+                    </span>
+                  );
+                })}
+              </div>
+              {!focused && !finished && (
+                <button
+                  type="button"
+                  onClick={() => hiddenInputRef.current?.focus()}
+                  className="absolute inset-0 grid place-items-center text-sm font-medium text-muted-foreground"
+                >
+                  Click here or press any key to keep typing
+                </button>
+              )}
             </div>
 
             <input
               ref={hiddenInputRef}
               className="opacity-0 w-0 h-0 absolute"
               onKeyDown={handleKey}
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
               value=""
               onChange={() => {}}
               autoFocus
             />
+
 
             <p className={`mt-6 text-center text-xs ${isFullscreen ? 'text-amber-100/70' : 'text-muted-foreground'}`}>
               {isFullscreen

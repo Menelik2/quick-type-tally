@@ -213,6 +213,10 @@ export default function MonkeyMode() {
     return { wpm, accuracy, correctWords, correctChars, incorrectChars };
   })();
 
+  // Scrolling window of words so long rounds don't grow the canvas endlessly
+  const windowStart = Math.max(0, currentIndex - 12);
+
+
 
   return (
     <div

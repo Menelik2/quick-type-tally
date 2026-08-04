@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { RotateCcw, Swords, Skull, Trophy } from 'lucide-react';
 import { useGameRestart } from './GameShell';
+import { TEXT_ARENA_STYLE } from './arena';
 
 type Difficulty = 'apprentice' | 'ninja' | 'grandmaster';
 
@@ -160,7 +161,7 @@ export default function NinjaMode() {
       </div>
 
       <Card className="border-0 shadow-sm">
-        <CardContent className="p-8 space-y-6">
+        <CardContent className="p-8 space-y-6" style={TEXT_ARENA_STYLE}>
           <div className={`rounded-lg p-6 border transition-colors ${
             dead
               ? 'bg-red-50 border-red-200'

@@ -5,6 +5,7 @@ import { Car, RotateCcw, Flag, Trophy } from 'lucide-react';
 import { sfx } from '@/lib/sound';
 import { useGameRestart } from './GameShell';
 import { LevelSelect, filterWordsByLevel, type Level } from './levels';
+import { TEXT_ARENA_STYLE } from './arena';
 
 const RIVAL_WPM: Record<Level, number> = { easy: 30, medium: 45, hard: 65 };
 
@@ -223,7 +224,7 @@ export default function CarRace() {
 
       {/* Typing zone */}
       <Card className="border-0 shadow-sm">
-        <CardContent className="p-8 space-y-4">
+        <CardContent className="p-8 space-y-4" style={TEXT_ARENA_STYLE}>
           <div className="text-center">
             <div className="text-3xl font-mono tracking-wide">
               {word.split('').map((ch, i) => {

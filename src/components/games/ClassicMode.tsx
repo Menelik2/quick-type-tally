@@ -5,6 +5,7 @@ import { Progress } from '@/components/ui/progress';
 import { RotateCcw, Eye, EyeOff, Keyboard, Activity, MousePointerClick } from 'lucide-react';
 import { useGameRestart } from './GameShell';
 import { LevelSelect, poolByLevel, type Level } from './levels';
+import { TEXT_ARENA_STYLE } from './arena';
 
 const SAMPLE_TEXTS = [
   "The quick brown fox jumps over the lazy dog. This pangram contains every letter of the alphabet and has been used for decades to test typewriters and keyboards. It remains a popular choice for typing practice.",
@@ -379,7 +380,7 @@ export default function ClassicMode({ timeLimit: initialTimeLimit, monkeyMode: i
 
       {/* Typing Area — click anywhere on the text to type */}
       <Card className="border-0 shadow-sm">
-        <CardContent className="p-6 lg:p-10 space-y-6">
+        <CardContent className="p-6 lg:p-10 space-y-6" style={TEXT_ARENA_STYLE}>
           <div
             className="relative rounded-xl bg-muted/40 p-6 lg:p-10 cursor-text ring-1 ring-transparent focus-within:ring-primary/40 transition"
             onMouseDown={(e) => {

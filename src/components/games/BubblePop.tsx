@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { RotateCcw, Heart, Volume2, VolumeX, Trophy, Flame } from 'lucide-react';
 import { sfx } from '@/lib/sound';
 import { useGameRestart } from './GameShell';
+import { ARENA_CLASS, ARENA_STYLE, useArenaSize } from './arena';
 import { LevelSelect, LEVEL_TUNING, filterWordsByLevel, type Level } from './levels';
 
 const WORD_BANK = [

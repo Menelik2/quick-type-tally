@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { RotateCcw, Heart } from 'lucide-react';
 import { useGameRestart } from './GameShell';
+import { ARENA_CLASS, ARENA_STYLE, useArenaSize } from './arena';
 import { LevelSelect, LEVEL_TUNING, filterWordsByLevel, type Level } from './levels';
 
 const WORD_BANK = [

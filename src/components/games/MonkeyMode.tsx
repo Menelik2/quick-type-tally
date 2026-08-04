@@ -120,7 +120,11 @@ export default function MonkeyMode() {
     setTimeout(() => hiddenInputRef.current?.focus(), 50);
   };
 
-  const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  type KeyLike = Pick<KeyboardEvent, 'key' | 'ctrlKey' | 'metaKey' | 'altKey'> & {
+    preventDefault: () => void;
+  };
+
+  const handleKey = (e: KeyLike) => {
     if (e.key === 'Escape') {
       e.preventDefault();
       if (document.fullscreenElement) document.exitFullscreen().catch(() => {});

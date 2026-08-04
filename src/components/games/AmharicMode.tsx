@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { RotateCcw, Languages } from 'lucide-react';
 import { useGameRestart } from './GameShell';
+import { TEXT_ARENA_STYLE } from './arena';
 
 type Mode = 'words' | 'phrases';
 type Difficulty = 'easy' | 'medium' | 'hard';
@@ -202,7 +203,7 @@ export default function AmharicMode() {
       </div>
 
       <Card className="border-0 shadow-sm">
-        <CardContent className="p-8 space-y-6">
+        <CardContent className="p-8 space-y-6" style={TEXT_ARENA_STYLE}>
           <div className="rounded-lg bg-gradient-to-br from-amber-50 via-white to-green-50 border border-amber-100 p-6 text-center">
             <div className="text-2xl md:text-3xl leading-relaxed font-serif tracking-wide" lang="am" dir="ltr">
               {target.split('').map((ch, i) => {

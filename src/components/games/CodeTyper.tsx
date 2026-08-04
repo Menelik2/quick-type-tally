@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { RotateCcw, Code2 } from 'lucide-react';
 import { useGameRestart } from './GameShell';
 import { LevelSelect, poolByLevel, type Level } from './levels';
+import { TEXT_ARENA_STYLE } from './arena';
 
 type Lang = 'javascript' | 'python' | 'html' | 'css';
 
@@ -190,8 +191,8 @@ export default function CodeTyper() {
       </div>
 
       <Card className="border-0 shadow-sm">
-        <CardContent className="p-6 space-y-5">
-          <div className="rounded-lg bg-slate-900 border border-slate-800 p-6 overflow-auto max-h-[360px]">
+        <CardContent className="p-6 space-y-5" style={TEXT_ARENA_STYLE}>
+          <div className="rounded-lg bg-slate-900 border border-slate-800 p-6 overflow-auto max-h-[clamp(220px,42vh,520px)]">
             <pre className="font-mono text-base md:text-lg leading-relaxed whitespace-pre-wrap break-all text-slate-300">
               {rendered}
             </pre>

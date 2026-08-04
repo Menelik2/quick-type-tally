@@ -5,6 +5,7 @@ import { Progress } from '@/components/ui/progress';
 import { RotateCcw, Zap } from 'lucide-react';
 import { useGameRestart } from './GameShell';
 import { LevelSelect, filterWordsByLevel, type Level } from './levels';
+import { TEXT_ARENA_STYLE } from './arena';
 
 const WORD_BANK = [
   "apple", "bridge", "castle", "dragon", "eagle", "forest", "garden", "harbor", "island", "jungle",
@@ -176,7 +177,7 @@ export default function WordSprint({ initialTimeLimit = 60 }: WordSprintProps) {
 
       {/* Word Display */}
       <Card className="border-0 shadow-sm">
-        <CardContent className="p-8 space-y-6">
+        <CardContent className="p-8 space-y-6" style={TEXT_ARENA_STYLE}>
           <div className="text-center space-y-4">
             <div className="text-4xl font-bold font-mono tracking-wide">
               {currentWord.split('').map((char, idx) => {

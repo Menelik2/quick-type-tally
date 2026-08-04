@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { RotateCcw, Maximize2, Minimize2, Banana } from 'lucide-react';
 import { useGameRestart } from './GameShell';
 import { LevelSelect, filterWordsByLevel, type Level } from './levels';
+import { TEXT_ARENA_STYLE } from './arena';
 
 const MONKEY_WORDS = [
   'monkey', 'banana', 'jungle', 'swing', 'tree', 'vine', 'coconut', 'palm',
@@ -300,6 +301,7 @@ export default function MonkeyMode() {
         <Card className={`border-0 shadow-sm ${isFullscreen ? 'bg-white/5 backdrop-blur' : ''}`}>
           <CardContent
             className={`${isFullscreen ? 'p-12 min-h-[60vh]' : 'p-8'} cursor-text`}
+            style={TEXT_ARENA_STYLE}
             onClick={() => hiddenInputRef.current?.focus()}
           >
             <div className="relative">

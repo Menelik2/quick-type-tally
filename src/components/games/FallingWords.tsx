@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { RotateCcw, Heart } from 'lucide-react';
 import { useGameRestart } from './GameShell';
+import { ARENA_CARD_STYLE, ARENA_CLASS, ARENA_STYLE, useArenaSize } from './arena';
 import { LevelSelect, LEVEL_TUNING, filterWordsByLevel, type Level } from './levels';
 
 const WORD_BANK = [
@@ -37,6 +38,7 @@ export default function FallingWords() {
   const [wordsTyped, setWordsTyped] = useState(0);
   const [bestScore, setBestScore] = useState(0);
   const gameAreaRef = useRef<HTMLDivElement>(null);
+  const { sizeRef } = useArenaSize(gameAreaRef);
   const inputRef = useRef<HTMLInputElement>(null);
   const nextIdRef = useRef(0);
   const frameRef = useRef(0);
@@ -48,7 +50,7 @@ export default function FallingWords() {
   const spawnWord = useCallback(() => {
     const pool = filterWordsByLevel(WORD_BANK, difficulty);
     const wordText = pool[Math.floor(Math.random() * pool.length)];
-    const gameWidth = gameAreaRef.current?.clientWidth || 600;
+    const gameWidth = sizeRef.current.width || 600;
     const newWord: FallingWord = {
       id: nextIdRef.current++,
       word: wordText,
@@ -93,7 +95,8 @@ export default function FallingWords() {
 
       setWords(prev => {
         const updated = prev.map(w => ({ ...w, y: w.y + w.speed }));
-        const offScreen = updated.filter(w => w.y > 420);
+        const floor = sizeRef.current.height - 40;
+        const offScreen = updated.filter(w => w.y > floor);
         if (offScreen.length > 0) {
           setLives(l => {
             const newLives = l - offScreen.length;
@@ -104,7 +107,7 @@ export default function FallingWords() {
             return Math.max(0, newLives);
           });
         }
-        return updated.filter(w => w.y <= 420);
+        return updated.filter(w => w.y <= floor);
       });
 
       frameRef.current = requestAnimationFrame(animate);
@@ -202,11 +205,12 @@ export default function FallingWords() {
       </div>
 
       {/* Game Area */}
-      <Card className="border-0 shadow-sm overflow-hidden">
+      <Card className="border-0 shadow-sm overflow-hidden" style={ARENA_CARD_STYLE}>
         <CardContent className="p-0">
           <div
             ref={gameAreaRef}
-            className="relative w-full h-[450px] bg-slate-900 rounded-lg overflow-hidden"
+            className={`${ARENA_CLASS} bg-slate-900`}
+            style={ARENA_STYLE}
           >
             {/* Stars background */}
             <div className="absolute inset-0">

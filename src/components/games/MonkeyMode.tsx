@@ -121,51 +121,72 @@ export default function MonkeyMode() {
   };
 
   const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (finished) return;
-
-    // Start on first keystroke
-    if (!startedAt && e.key.length === 1) {
-      setStartedAt(Date.now());
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+      else reset();
+      return;
     }
+
+    // Ignore browser/OS shortcuts entirely
+    if (e.ctrlKey || e.metaKey || e.altKey) {
+      if (e.key === 'Backspace') {
+        // Ctrl/Alt+Backspace clears the current word
+        e.preventDefault();
+        setTyped((t) => {
+          const copy = [...t];
+          copy[currentIndex] = '';
+          return copy;
+        });
+      }
+      return;
+    }
+
+    if (finished) return;
 
     if (e.key === ' ') {
       e.preventDefault();
+      // Don't advance on leading/double spaces
       if ((typed[currentIndex] ?? '').length === 0) return;
-      const next = currentIndex + 1;
-      setCurrentIndex(next);
-      setTyped((t) => {
-        const copy = [...t];
-        if (copy.length <= next) copy.push('');
-        return copy;
+      if (!startedAt) setStartedAt(Date.now());
+      setCurrentIndex((i) => {
+        const next = i + 1;
+        setTyped((t) => (t.length <= next ? [...t, ''] : t));
+        return next;
       });
-      // extend word list if near end
-      if (next > words.length - 20) {
+      // extend word list when nearing the end of the pool
+      if (currentIndex + 1 > words.length - 30) {
         setWords((w) => [...w, ...pickWords(60, level)]);
       }
-    } else if (e.key === 'Backspace') {
+      return;
+    }
+
+    if (e.key === 'Backspace') {
       e.preventDefault();
+      if ((typed[currentIndex] ?? '').length > 0) {
+        setTyped((t) => {
+          const copy = [...t];
+          copy[currentIndex] = (copy[currentIndex] ?? '').slice(0, -1);
+          return copy;
+        });
+      } else if (currentIndex > 0) {
+        setCurrentIndex(currentIndex - 1);
+      }
+      return;
+    }
+
+    // Single printable character
+    if (e.key.length === 1) {
+      e.preventDefault();
+      if (!startedAt) setStartedAt(Date.now());
+      const limit = (words[currentIndex]?.length ?? 0) + 8;
       setTyped((t) => {
         const copy = [...t];
         const cur = copy[currentIndex] ?? '';
-        if (cur.length > 0) {
-          copy[currentIndex] = cur.slice(0, -1);
-        } else if (currentIndex > 0) {
-          // jump back to previous word
-          setCurrentIndex(currentIndex - 1);
-        }
+        if (cur.length >= limit) return t; // stop runaway overflow
+        copy[currentIndex] = cur + e.key;
         return copy;
       });
-    } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
-      e.preventDefault();
-      setTyped((t) => {
-        const copy = [...t];
-        copy[currentIndex] = (copy[currentIndex] ?? '') + e.key;
-        return copy;
-      });
-    }
-
-    if (e.key === 'Escape') {
-      reset();
     }
   };
 
@@ -184,12 +205,14 @@ export default function MonkeyMode() {
       }
     }
     const totalChars = correctChars + incorrectChars;
-    const elapsed = startedAt ? (Date.now() - startedAt) / 1000 : 0;
-    const minutes = elapsed / 60;
-    const wpm = minutes > 0 ? Math.round((correctChars / 5) / minutes) : 0;
+    const now = endedAt ?? Date.now();
+    const elapsed = startedAt ? (now - startedAt) / 1000 : 0;
+    // Below 2s the WPM figure is meaningless and spikes wildly
+    const wpm = elapsed >= 2 ? Math.round((correctChars / 5) / (elapsed / 60)) : 0;
     const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 100;
     return { wpm, accuracy, correctWords, correctChars, incorrectChars };
   })();
+
 
   return (
     <div

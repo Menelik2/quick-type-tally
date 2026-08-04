@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { RotateCcw, Heart, Volume2, VolumeX, Trophy, Flame } from 'lucide-react';
 import { sfx } from '@/lib/sound';
 import { useGameRestart } from './GameShell';
-import { ARENA_CLASS, ARENA_STYLE, useArenaSize } from './arena';
+import { ARENA_CARD_STYLE, ARENA_CLASS, ARENA_STYLE, useArenaSize } from './arena';
 import { LevelSelect, LEVEL_TUNING, filterWordsByLevel, type Level } from './levels';
 
 const WORD_BANK = [
@@ -282,7 +282,7 @@ export default function BubblePop() {
         </Button>
       </div>
 
-      <Card className={`border-0 shadow-sm overflow-hidden ${glow ? 'animate-streak-glow' : ''}`}>
+      <Card className={`border-0 shadow-sm overflow-hidden ${glow ? 'animate-streak-glow' : ''}`} style={ARENA_CARD_STYLE}>
         <CardContent className="p-0">
           <div
             ref={gameAreaRef}

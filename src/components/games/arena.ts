@@ -11,7 +11,12 @@ export const ARENA_CLASS = 'relative w-full mx-auto overflow-hidden rounded-xl';
 
 export const ARENA_STYLE: CSSProperties = {
   height: 'clamp(320px, min(60vh, 44vw), 720px)',
+};
+
+/** Wrapper card around an arcade play area — centers it on ultrawide screens. */
+export const ARENA_CARD_STYLE: CSSProperties = {
   maxWidth: 'min(100%, 1400px)',
+  marginInline: 'auto',
 };
 
 /** Play surface for text/typing modes: readable line length on ultrawide. */

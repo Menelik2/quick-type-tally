@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { RotateCcw, Heart } from 'lucide-react';
 import { useGameRestart } from './GameShell';
-import { ARENA_CLASS, ARENA_STYLE, useArenaSize } from './arena';
+import { ARENA_CARD_STYLE, ARENA_CLASS, ARENA_STYLE, useArenaSize } from './arena';
 import { LevelSelect, LEVEL_TUNING, filterWordsByLevel, type Level } from './levels';
 
 const WORD_BANK = [
@@ -205,7 +205,7 @@ export default function FallingWords() {
       </div>
 
       {/* Game Area */}
-      <Card className="border-0 shadow-sm overflow-hidden">
+      <Card className="border-0 shadow-sm overflow-hidden" style={ARENA_CARD_STYLE}>
         <CardContent className="p-0">
           <div
             ref={gameAreaRef}

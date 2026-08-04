@@ -194,6 +194,28 @@ export default function MonkeyMode() {
     }
   };
 
+  // Typing anywhere on the page works: focus the hidden input and use the keystroke
+  useEffect(() => {
+    const onWindowKey = (e: KeyboardEvent) => {
+      const input = hiddenInputRef.current;
+      if (!input || document.activeElement === input) return;
+      const el = document.activeElement as HTMLElement | null;
+      if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) return;
+      const printable = e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey;
+      if (!printable && e.key !== 'Backspace') return;
+      e.preventDefault();
+      input.focus({ preventScroll: true });
+      handleKey(e);
+    };
+    window.addEventListener('keydown', onWindowKey);
+    return () => window.removeEventListener('keydown', onWindowKey);
+  });
+
+  // Keep the caret in the typing field while a round is running
+  useEffect(() => {
+    hiddenInputRef.current?.focus({ preventScroll: true });
+  }, []);
+
   // Stats
   const stats = (() => {
     let correctChars = 0;

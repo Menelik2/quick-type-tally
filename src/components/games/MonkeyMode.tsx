@@ -81,7 +81,10 @@ export default function MonkeyMode() {
       const elapsed = Math.floor((Date.now() - startedAt) / 1000);
       const left = Math.max(0, duration - elapsed);
       setRemaining(left);
-      if (left === 0) setFinished(true);
+      if (left === 0) {
+        setEndedAt(startedAt + duration * 1000);
+        setFinished(true);
+      }
     }, 100);
     return () => clearInterval(id);
   }, [startedAt, duration, finished]);

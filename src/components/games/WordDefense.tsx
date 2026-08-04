@@ -30,7 +30,6 @@ interface Zap { id: number; x1: number; y1: number; x2: number; y2: number; }
 interface Popup { id: number; x: number; y: number; text: string; }
 
 const ENEMY_COLORS = ['bg-red-500', 'bg-orange-500', 'bg-purple-500', 'bg-pink-500', 'bg-yellow-500'];
-const GAME_HEIGHT = 620;
 const WIN_DEFEATED = 30;
 
 export default function WordDefense() {
@@ -58,12 +57,13 @@ export default function WordDefense() {
   const [glow, setGlow] = useState(false);
 
   const gameAreaRef = useRef<HTMLDivElement>(null);
+  const { sizeRef } = useArenaSize(gameAreaRef);
   const inputRef = useRef<HTMLInputElement>(null);
   const nextIdRef = useRef(0);
   const fxIdRef = useRef(0);
   const frameRef = useRef(0);
   const lastSpawnRef = useRef(0);
-  const centerRef = useRef({ x: 400, y: GAME_HEIGHT / 2 });
+  const centerRef = useRef({ x: 400, y: 260 });
   const prevInputRef = useRef('');
 
   useEffect(() => { sfx.setEnabled(soundOn); }, [soundOn]);
@@ -85,8 +85,8 @@ export default function WordDefense() {
   const spawnEnemy = useCallback(() => {
     const pool = filterWordsByLevel(WORD_BANK, difficulty);
     const wordText = pool[Math.floor(Math.random() * pool.length)];
-    const w = gameAreaRef.current?.clientWidth || 800;
-    const h = GAME_HEIGHT;
+    const w = sizeRef.current.width || 800;
+    const h = sizeRef.current.height || 520;
     centerRef.current = { x: w / 2, y: h / 2 };
     const side = Math.floor(Math.random() * 4);
     let x = 0, y = 0;
@@ -288,8 +288,8 @@ export default function WordDefense() {
         <CardContent className="p-0">
           <div
             ref={gameAreaRef}
-            className="relative w-full bg-gradient-to-br from-slate-800 via-indigo-900 to-slate-900 rounded-lg overflow-hidden"
-            style={{ height: GAME_HEIGHT }}
+            className={`${ARENA_CLASS} bg-gradient-to-br from-slate-800 via-indigo-900 to-slate-900`}
+            style={ARENA_STYLE}
           >
             {/* Base */}
             <div

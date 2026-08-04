@@ -37,7 +37,6 @@ interface Bubble {
 interface Burst { id: number; x: number; y: number; size: number; color: string; }
 interface Popup { id: number; x: number; y: number; text: string; }
 
-const GAME_HEIGHT = 620;
 const WIN_SCORE = 1000;
 
 export default function BubblePop() {
@@ -64,6 +63,7 @@ export default function BubblePop() {
   const [glow, setGlow] = useState(false);
 
   const gameAreaRef = useRef<HTMLDivElement>(null);
+  const { sizeRef } = useArenaSize(gameAreaRef);
   const inputRef = useRef<HTMLInputElement>(null);
   const nextIdRef = useRef(0);
   const burstIdRef = useRef(0);
@@ -90,13 +90,13 @@ export default function BubblePop() {
   const spawnBubble = useCallback(() => {
     const pool = filterWordsByLevel(WORD_BANK, difficulty);
     const wordText = pool[Math.floor(Math.random() * pool.length)];
-    const gameWidth = gameAreaRef.current?.clientWidth || 800;
+    const gameWidth = sizeRef.current.width || 800;
     const size = (80 + Math.random() * 50) * (difficulty === 'hard' ? 0.8 : difficulty === 'easy' ? 1.15 : 1);
     const newBubble: Bubble = {
       id: nextIdRef.current++,
       word: wordText,
       x: 40 + Math.random() * (gameWidth - size - 80),
-      y: GAME_HEIGHT,
+      y: sizeRef.current.height,
       speed: (0.3 + level * 0.13 + Math.random() * 0.15) * tuning.speed,
       size,
       color: BUBBLE_COLORS[Math.floor(Math.random() * BUBBLE_COLORS.length)],
@@ -285,8 +285,8 @@ export default function BubblePop() {
         <CardContent className="p-0">
           <div
             ref={gameAreaRef}
-            className="relative w-full bg-gradient-to-b from-sky-200 via-cyan-100 to-blue-100 rounded-lg overflow-hidden"
-            style={{ height: GAME_HEIGHT }}
+            className={`${ARENA_CLASS} bg-gradient-to-b from-sky-200 via-cyan-100 to-blue-100`}
+            style={ARENA_STYLE}
           >
             <div className="absolute top-0 left-0 right-0 h-1 bg-red-400/60" />
 

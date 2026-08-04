@@ -41,9 +41,11 @@ export default function MonkeyMode() {
   const [typed, setTyped] = useState<string[]>(['']); // typed[i] = what user typed for word i
   const [currentIndex, setCurrentIndex] = useState(0);
   const [startedAt, setStartedAt] = useState<number | null>(null);
+  const [endedAt, setEndedAt] = useState<number | null>(null);
   const [remaining, setRemaining] = useState(30);
   const [finished, setFinished] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [focused, setFocused] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const hiddenInputRef = useRef<HTMLInputElement>(null);
 
@@ -52,10 +54,12 @@ export default function MonkeyMode() {
     setTyped(['']);
     setCurrentIndex(0);
     setStartedAt(null);
+    setEndedAt(null);
     setRemaining(d);
     setFinished(false);
     setTimeout(() => hiddenInputRef.current?.focus(), 0);
   }, [duration, level]);
+
 
   useGameRestart(() => reset());
 

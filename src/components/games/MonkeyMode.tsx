@@ -272,43 +272,61 @@ export default function MonkeyMode() {
             className={`${isFullscreen ? 'p-12 min-h-[60vh]' : 'p-8'} cursor-text`}
             onClick={() => hiddenInputRef.current?.focus()}
           >
-            <div
-              className={`font-mono leading-relaxed flex flex-wrap gap-x-3 gap-y-2 ${isFullscreen ? 'text-4xl' : 'text-2xl'}`}
-            >
-              {words.slice(0, currentIndex + 40).map((word, wi) => {
-                const t = typed[wi] ?? '';
-                const isCurrent = wi === currentIndex;
-                const chars = word.split('').map((ch, ci) => {
-                  let cls = isFullscreen ? 'text-amber-100/40' : 'text-gray-400';
-                  if (ci < t.length) {
-                    cls = t[ci] === ch ? (isFullscreen ? 'text-green-400' : 'text-green-600') : (isFullscreen ? 'text-red-400 underline' : 'text-red-500 underline');
-                  }
-                  if (isCurrent && ci === t.length) {
-                    cls += ' border-l-2 border-amber-400 animate-pulse';
-                  }
-                  return <span key={ci} className={cls}>{ch}</span>;
-                });
-                // extra typed chars beyond target
-                const extras = t.slice(word.length).split('').map((ch, i) => (
-                  <span key={`ex-${i}`} className={isFullscreen ? 'text-red-400/70' : 'text-red-400'}>{ch}</span>
-                ));
-                return (
-                  <span key={wi} className="whitespace-nowrap">
-                    {chars}
-                    {extras}
-                  </span>
-                );
-              })}
+            <div className="relative">
+              <div
+                className={`font-mono leading-relaxed flex flex-wrap gap-x-3 gap-y-2 transition-[filter] ${isFullscreen ? 'text-4xl' : 'text-2xl'} ${!focused && !finished ? 'blur-sm select-none' : ''}`}
+              >
+                {words.slice(windowStart, windowStart + 60).map((word, i) => {
+                  const wi = windowStart + i;
+                  const t = typed[wi] ?? '';
+                  const isCurrent = wi === currentIndex;
+                  const chars = word.split('').map((ch, ci) => {
+                    let cls = isFullscreen ? 'text-amber-100/40' : 'text-gray-400';
+                    if (ci < t.length) {
+                      cls = t[ci] === ch ? (isFullscreen ? 'text-green-400' : 'text-green-600') : (isFullscreen ? 'text-red-400 underline' : 'text-red-500 underline');
+                    }
+                    if (isCurrent && ci === t.length) {
+                      cls += ' border-l-2 border-amber-400 animate-pulse';
+                    }
+                    return <span key={ci} className={cls}>{ch}</span>;
+                  });
+                  // extra typed chars beyond target
+                  const extras = t.slice(word.length).split('').map((ch, ei) => (
+                    <span key={`ex-${ei}`} className={isFullscreen ? 'text-red-400/70' : 'text-red-400'}>{ch}</span>
+                  ));
+                  return (
+                    <span key={wi} className="whitespace-nowrap">
+                      {chars}
+                      {extras}
+                      {isCurrent && t.length >= word.length && (
+                        <span className="border-l-2 border-amber-400 animate-pulse">&nbsp;</span>
+                      )}
+                    </span>
+                  );
+                })}
+              </div>
+              {!focused && !finished && (
+                <button
+                  type="button"
+                  onClick={() => hiddenInputRef.current?.focus()}
+                  className="absolute inset-0 grid place-items-center text-sm font-medium text-muted-foreground"
+                >
+                  Click here or press any key to keep typing
+                </button>
+              )}
             </div>
 
             <input
               ref={hiddenInputRef}
               className="opacity-0 w-0 h-0 absolute"
               onKeyDown={handleKey}
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
               value=""
               onChange={() => {}}
               autoFocus
             />
+
 
             <p className={`mt-6 text-center text-xs ${isFullscreen ? 'text-amber-100/70' : 'text-muted-foreground'}`}>
               {isFullscreen

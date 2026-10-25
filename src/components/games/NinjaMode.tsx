@@ -94,16 +94,28 @@ export default function NinjaMode() {
     if (v.length > target.length) return;
     if (!startedAt && v.length > 0) setStartedAt(Date.now());
 
-    if (v.length > input.length) {
-      const i = v.length - 1;
-      if (v[i] !== target[i]) {
-        const nextMistakes = mistakes + 1;
-        setMistakes(nextMistakes);
-        if (nextMistakes > allowedMistakes) {
-          setDead(true);
-          setFinishedAt(Date.now());
-          return;
-        }
+    // Validate every newly inserted/replaced character, including pasted text.
+    let prefixLength = 0;
+    while (prefixLength < input.length && prefixLength < v.length && input[prefixLength] === v[prefixLength]) {
+      prefixLength++;
+    }
+    let suffixLength = 0;
+    while (
+      suffixLength < input.length - prefixLength &&
+      suffixLength < v.length - prefixLength &&
+      input[input.length - 1 - suffixLength] === v[v.length - 1 - suffixLength]
+    ) {
+      suffixLength++;
+    }
+    const inserted = v.slice(prefixLength, v.length - suffixLength);
+    const newMistakes = [...inserted].reduce((count, ch, offset) => count + (ch !== target[prefixLength + offset] ? 1 : 0), 0);
+    if (newMistakes > 0) {
+      const nextMistakes = mistakes + newMistakes;
+      setMistakes(nextMistakes);
+      if (nextMistakes > allowedMistakes) {
+        setDead(true);
+        setFinishedAt(Date.now());
+        return;
       }
     }
     setInput(v);

@@ -42,6 +42,7 @@ export default function FallingWords() {
   const inputRef = useRef<HTMLInputElement>(null);
   const nextIdRef = useRef(0);
   const frameRef = useRef(0);
+  const lastFrameRef = useRef<number | null>(null);
   const lastSpawnRef = useRef(0);
 
   const tuning = LEVEL_TUNING[difficulty];
@@ -73,6 +74,7 @@ export default function FallingWords() {
     setWordsTyped(0);
     nextIdRef.current = 0;
     lastSpawnRef.current = 0;
+    lastFrameRef.current = null;
     inputRef.current?.focus();
   }, [difficulty]);
 
@@ -87,6 +89,8 @@ export default function FallingWords() {
     if (!isPlaying || gameOver) return;
 
     const animate = (time: number) => {
+      const delta = lastFrameRef.current === null ? 1 : Math.min(50, time - lastFrameRef.current) / (1000 / 60);
+      lastFrameRef.current = time;
       if (time - lastSpawnRef.current > Math.max(1200 - level * 80, 400) * tuning.spawn) {
         spawnWord();
         lastSpawnRef.current = time;
@@ -94,7 +98,7 @@ export default function FallingWords() {
 
 
       setWords(prev => {
-        const updated = prev.map(w => ({ ...w, y: w.y + w.speed }));
+        const updated = prev.map(w => ({ ...w, y: w.y + w.speed * delta }));
         const floor = sizeRef.current.height - 40;
         const offScreen = updated.filter(w => w.y > floor);
         if (offScreen.length > 0) {

@@ -148,6 +148,15 @@ export default function ClassicMode({ timeLimit: initialTimeLimit, monkeyMode: i
     }
   }, [userInput, currentText, isTimeUp]);
 
+  // Capture the final score after either the passage is completed or the timer expires.
+  useEffect(() => {
+    if (!isComplete || startTime === null) return;
+    const elapsedMs = Math.max(1000, Date.now() - startTime);
+    const finalWpm = Math.max(0, Math.round(stats.correct / 5 / (elapsedMs / 60000)));
+    setWpm(finalWpm);
+    setBestWpm((best) => Math.max(best, finalWpm));
+  }, [isComplete, startTime, stats.correct]);
+
   const resetTest = useCallback(
     (limit?: number, lv: Level = level, mode: boolean = monkeyMode) => {
       setUserInput('');

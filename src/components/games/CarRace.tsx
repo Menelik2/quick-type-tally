@@ -48,6 +48,10 @@ export default function CarRace() {
   const [wordsDone, setWordsDone] = useState(0);
   const [streak, setStreak] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const playerPosRef = useRef(0);
+  const oppPosRef = useRef(0);
+  playerPosRef.current = playerPos;
+  oppPosRef.current = oppPos;
 
   const reset = useCallback((d: number = duration, lv: Level = level) => {
     setWord(pickWord('', lv));
@@ -87,10 +91,11 @@ export default function CarRace() {
       // Opponent progresses linearly to reach ~TRACK_LEN in `duration * (OPPONENT_WPM / 60)` chars-per-min pace
       // Simpler: opponent finishes track in slightly more than duration -> steady progress
       const oppRate = (TRACK_LEN / duration) * (RIVAL_WPM[level] / OPPONENT_WPM); // % per second
-      setOppPos(Math.min(TRACK_LEN, elapsed * oppRate));
+      const nextOppPos = Math.min(TRACK_LEN, elapsed * oppRate);
+      setOppPos(nextOppPos);
       if (left === 0) {
         setFinished(true);
-        (playerPos >= oppPos ? sfx.win : sfx.lose)();
+        (playerPosRef.current >= nextOppPos ? sfx.win : sfx.lose)();
       }
     }, 100);
     return () => clearInterval(id);

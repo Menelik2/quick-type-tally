@@ -97,10 +97,24 @@ export default function CodeTyper() {
     const v = e.target.value;
     if (v.length > target.length) return; // don't overrun
     if (!startedAt && v.length > 0) setStartedAt(Date.now());
-    if (v.length > input.length) {
-      const i = v.length - 1;
-      if (v[i] !== target[i]) setErrors((x) => x + 1);
-      setTotalTyped((x) => x + 1);
+    // Count every inserted/replaced character (including paste), not just the final character.
+    let prefixLength = 0;
+    while (prefixLength < input.length && prefixLength < v.length && input[prefixLength] === v[prefixLength]) {
+      prefixLength++;
+    }
+    let suffixLength = 0;
+    while (
+      suffixLength < input.length - prefixLength &&
+      suffixLength < v.length - prefixLength &&
+      input[input.length - 1 - suffixLength] === v[v.length - 1 - suffixLength]
+    ) {
+      suffixLength++;
+    }
+    const inserted = v.slice(prefixLength, v.length - suffixLength);
+    if (inserted.length > 0) {
+      setTotalTyped((x) => x + inserted.length);
+      const newErrors = [...inserted].reduce((count, ch, offset) => count + (ch !== target[prefixLength + offset] ? 1 : 0), 0);
+      if (newErrors > 0) setErrors((x) => x + newErrors);
     }
     setInput(v);
     if (v === target) setFinishedAt(Date.now());

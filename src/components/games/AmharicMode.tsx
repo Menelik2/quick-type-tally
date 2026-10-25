@@ -139,10 +139,24 @@ export default function AmharicMode() {
     if (endTime) return;
     if (!startTime && v.length > 0) setStartTime(Date.now());
 
-    if (v.length > userInput.length) {
-      const i = v.length - 1;
-      if (v[i] !== target[i]) setErrors((e) => e + 1);
-      setTotalTyped((t) => t + 1);
+    // Count all newly inserted/replaced characters so paste and edits are scored honestly.
+    let prefixLength = 0;
+    while (prefixLength < userInput.length && prefixLength < v.length && userInput[prefixLength] === v[prefixLength]) {
+      prefixLength++;
+    }
+    let suffixLength = 0;
+    while (
+      suffixLength < userInput.length - prefixLength &&
+      suffixLength < v.length - prefixLength &&
+      userInput[userInput.length - 1 - suffixLength] === v[v.length - 1 - suffixLength]
+    ) {
+      suffixLength++;
+    }
+    const inserted = v.slice(prefixLength, v.length - suffixLength);
+    if (inserted.length > 0) {
+      setTotalTyped((t) => t + inserted.length);
+      const newErrors = [...inserted].reduce((count, ch, offset) => count + (ch !== target[prefixLength + offset] ? 1 : 0), 0);
+      if (newErrors > 0) setErrors((e) => e + newErrors);
     }
     setUserInput(v);
 

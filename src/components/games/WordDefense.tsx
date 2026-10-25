@@ -63,6 +63,7 @@ export default function WordDefense() {
   const nextIdRef = useRef(0);
   const fxIdRef = useRef(0);
   const frameRef = useRef(0);
+  const lastFrameRef = useRef<number | null>(null);
   const lastSpawnRef = useRef(0);
   const centerRef = useRef({ x: 400, y: 260 });
   const prevInputRef = useRef('');
@@ -131,6 +132,7 @@ export default function WordDefense() {
     setElapsed(0);
     nextIdRef.current = 0;
     lastSpawnRef.current = 0;
+    lastFrameRef.current = null;
     prevInputRef.current = '';
     setTimeout(() => inputRef.current?.focus(), 50);
   }, [difficulty]);
@@ -145,13 +147,15 @@ export default function WordDefense() {
   useEffect(() => {
     if (!isPlaying || gameOver) return;
     const animate = (time: number) => {
+      const delta = lastFrameRef.current === null ? 1 : Math.min(50, time - lastFrameRef.current) / (1000 / 60);
+      lastFrameRef.current = time;
       if (time - lastSpawnRef.current > Math.max(1500 - level * 100, 500) * tuning.spawn) {
         spawnEnemy();
         lastSpawnRef.current = time;
       }
 
       setEnemies(prev => {
-        const updated = prev.map(e => ({ ...e, x: e.x + e.vx, y: e.y + e.vy }));
+        const updated = prev.map(e => ({ ...e, x: e.x + e.vx * delta, y: e.y + e.vy * delta }));
         const hits = updated.filter(e => Math.hypot(e.x - centerRef.current.x, e.y - centerRef.current.y) < 45);
         if (hits.length > 0) {
           const damage = hits.reduce((sum, h) => sum + h.word.length * 2, 0);
@@ -230,7 +234,12 @@ export default function WordDefense() {
         return;
       }
     } else if (value.length > 0) {
+      // Clear an invalid prefix so a single typo doesn't trap the player.
       setStreak(0);
+      setUserInput('');
+      prevInputRef.current = '';
+      setEnemies(prev => prev.map(en => ({ ...en, typedSoFar: '' })));
+      return;
     }
     setUserInput(value);
   };

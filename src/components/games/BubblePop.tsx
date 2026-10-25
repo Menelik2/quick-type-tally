@@ -69,6 +69,7 @@ export default function BubblePop() {
   const nextIdRef = useRef(0);
   const burstIdRef = useRef(0);
   const frameRef = useRef(0);
+  const lastFrameRef = useRef<number | null>(null);
   const lastSpawnRef = useRef(0);
   const prevInputRef = useRef('');
 
@@ -96,7 +97,7 @@ export default function BubblePop() {
     const newBubble: Bubble = {
       id: nextIdRef.current++,
       word: wordText,
-      x: 40 + Math.random() * (gameWidth - size - 80),
+      x: Math.max(8, Math.random() * Math.max(0, gameWidth - size - 16)), 
       y: sizeRef.current.height,
       speed: (0.3 + level * 0.13 + Math.random() * 0.15) * tuning.speed,
       size,
@@ -127,6 +128,7 @@ export default function BubblePop() {
     setElapsed(0);
     nextIdRef.current = 0;
     lastSpawnRef.current = 0;
+    lastFrameRef.current = null;
     prevInputRef.current = '';
     setTimeout(() => inputRef.current?.focus(), 50);
   }, [difficulty]);
@@ -141,13 +143,15 @@ export default function BubblePop() {
   useEffect(() => {
     if (!isPlaying || gameOver) return;
     const animate = (time: number) => {
+      const delta = lastFrameRef.current === null ? 1 : Math.min(50, time - lastFrameRef.current) / (1000 / 60);
+      lastFrameRef.current = time;
       if (time - lastSpawnRef.current > Math.max(1400 - level * 90, 500) * tuning.spawn) {
         spawnBubble();
         lastSpawnRef.current = time;
       }
 
       setBubbles(prev => {
-        const updated = prev.map(b => ({ ...b, y: b.y - b.speed, x: b.x + b.drift }));
+        const updated = prev.map(b => ({ ...b, y: b.y - b.speed * delta, x: b.x + b.drift * delta }));
         const escaped = updated.filter(b => b.y < -60);
         if (escaped.length > 0) {
           sfx.damage();
@@ -230,7 +234,12 @@ export default function BubblePop() {
         return;
       }
     } else if (value.length > 0) {
+      // Clear an invalid prefix so one typo doesn't lock the typing input.
       setStreak(0);
+      setUserInput('');
+      prevInputRef.current = '';
+      setBubbles(prev => prev.map(b => ({ ...b, typedSoFar: '' })));
+      return;
     }
     setUserInput(value);
   };

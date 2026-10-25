@@ -230,7 +230,12 @@ export default function WordDefense() {
         return;
       }
     } else if (value.length > 0) {
+      // Clear an invalid prefix so a single typo doesn't trap the player.
       setStreak(0);
+      setUserInput('');
+      prevInputRef.current = '';
+      setEnemies(prev => prev.map(en => ({ ...en, typedSoFar: '' })));
+      return;
     }
     setUserInput(value);
   };

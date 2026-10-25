@@ -230,7 +230,12 @@ export default function BubblePop() {
         return;
       }
     } else if (value.length > 0) {
+      // Clear an invalid prefix so one typo doesn't lock the typing input.
       setStreak(0);
+      setUserInput('');
+      prevInputRef.current = '';
+      setBubbles(prev => prev.map(b => ({ ...b, typedSoFar: '' })));
+      return;
     }
     setUserInput(value);
   };

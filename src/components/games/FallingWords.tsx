@@ -54,7 +54,7 @@ export default function FallingWords() {
     const newWord: FallingWord = {
       id: nextIdRef.current++,
       word: wordText,
-      x: 40 + Math.random() * (gameWidth - 200),
+      x: Math.max(8, Math.random() * Math.max(0, gameWidth - 180)),
       y: -30,
       speed: (0.3 + level * 0.15 + Math.random() * 0.2) * tuning.speed,
       typedSoFar: '',
@@ -148,6 +148,11 @@ export default function FallingWords() {
         inputRef.current?.focus();
         return;
       }
+    } else if (value.length > 0) {
+      // Reject an invalid prefix and let the player immediately try another falling word.
+      setUserInput('');
+      setWords(prev => prev.map(w => ({ ...w, typedSoFar: '' })));
+      return;
     }
     setUserInput(value);
   };

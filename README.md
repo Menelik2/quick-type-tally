@@ -1,73 +1,163 @@
-# Welcome to your Lovable project
+# Yene Typing ⌨️
 
-## Project info
+<p align="center">
+  <strong>Build speed. Improve accuracy. Enjoy every keystroke.</strong>
+  <br />
+  An interactive typing-practice app with classic exercises, arcade-style challenges, Amharic typing, and code practice.
+</p>
 
-**URL**: https://lovable.dev/projects/0592d812-eb57-4b6a-a9de-8658737f6ff4
+<p align="center">
+  <a href="https://quick-type-tally.vercel.app/"><strong>🚀 Open Yene Typing</strong></a>
+  ·
+  <a href="https://github.com/Menelik2/quick-type-tally/issues">Report an issue</a>
+  ·
+  <a href="https://github.com/Menelik2/quick-type-tally/pulls">Contribute</a>
+</p>
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## About
 
-**Use Lovable**
+**Yene Typing** helps learners practise typing in a focused, engaging environment. Choose a practice mode, type at your own pace, and use live feedback to notice mistakes and track progress through a session.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/0592d812-eb57-4b6a-a9de-8658737f6ff4) and start prompting.
+The interface is designed to work across desktop and mobile screens, with a desktop-friendly practice layout and distinct game modes for different styles of practice.
 
-Changes made via Lovable will be committed automatically to this repo.
+## ✨ Highlights
 
-**Use your preferred IDE**
+- **10 practice modes** for focused exercises and game-inspired challenges.
+- **Live character feedback** to distinguish correct and incorrect input.
+- **Current-word highlighting** to help keep attention on the text being typed.
+- **Session progress indicators** with completion percentage and character progress.
+- **Streak and motivational feedback** to make practice feel rewarding.
+- **Amharic typing practice** alongside English-oriented exercises.
+- **Code Typer** for programming-text typing practice.
+- **Responsive UI** for desktop and mobile layouts.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🎮 Choose a mode
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+| Mode | What to expect |
+| --- | --- |
+| **Classic** | Focused word-by-word typing practice with live feedback |
+| **Sprint** | A speed-focused typing challenge |
+| **Falling Words** | Type words as they appear in the play area |
+| **Bubbles** | A playful word-typing challenge |
+| **Defense** | A defense-themed typing game |
+| **Car Race** | Race-inspired typing practice |
+| **Monkey** | A game-style typing challenge |
+| **Amharic** | Practise typing Amharic text |
+| **Code Typer** | Practise typing code-oriented text |
+| **Ninja** | An action-inspired typing challenge |
 
-Follow these steps:
+*Game mechanics and options may change as the project develops.*
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## 🖥️ Preview the app
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Visit the live application to explore the current interface and available modes:
 
-# Step 3: Install the necessary dependencies.
-npm i
+**[quick-type-tally.vercel.app](https://quick-type-tally.vercel.app/)**
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+## 🧱 Built with
+
+| Technology | Role |
+| --- | --- |
+| React 18 | UI components |
+| TypeScript | Typed application code |
+| Vite | Local development and production builds |
+| Tailwind CSS | Styling and responsive layout |
+| shadcn/ui + Radix UI | Reusable interface primitives |
+| Lucide React | Icons |
+| React Router | Client-side navigation |
+| TanStack Query | Data-fetching and asynchronous state utilities |
+| Supabase JS | Client library available for Supabase integration |
+
+## 🚀 Get started locally
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) — preferably a current LTS version
+- npm
+- Git
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/Menelik2/quick-type-tally.git
+cd quick-type-tally
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Start the development server
+
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Open the local URL printed by Vite in your terminal (commonly `http://localhost:5173`).
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 📜 Useful commands
 
-**Use GitHub Codespaces**
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start the local development server |
+| `npm run build` | Create a production build |
+| `npm run build:dev` | Build using development mode |
+| `npm run preview` | Serve the production build locally |
+| `npm run lint` | Run ESLint |
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Before opening a pull request, it is recommended to run:
 
-## What technologies are used for this project?
+```bash
+npm run lint
+npm run build
+```
 
-This project is built with:
+## 🌐 Deploy
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Yene Typing is a Vite frontend and can be deployed on platforms that support static frontend builds, including [Vercel](https://vercel.com/).
 
-## How can I deploy this project?
+Typical Vercel settings:
 
-Simply open [Lovable](https://lovable.dev/projects/0592d812-eb57-4b6a-a9de-8658737f6ff4) and click on Share -> Publish.
+- **Framework preset:** Vite
+- **Build command:** `npm run build`
+- **Output directory:** `dist`
 
-## Can I connect a custom domain to my Lovable project?
+Connect the GitHub repository to enable automatic deployments. Configure any environment variables required by the code in the hosting provider's project settings.
 
-Yes, you can!
+## 🔐 Environment and security notes
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+- Check the repository for an `.env.example` file and inspect the code to confirm the exact environment variable names.
+- Do not commit local `.env` files, credentials, or private API keys.
+- Never expose Supabase service-role keys or other privileged secrets in browser code.
+- Only use public client-side configuration values in frontend environment variables.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## 🤝 Contributing
+
+Suggestions, bug reports, and improvements are welcome.
+
+1. Fork this repository or create a feature branch.
+2. Keep changes focused and consistent with the existing code style.
+3. Run lint and build checks where possible.
+4. Open a pull request with a clear summary and testing notes.
+
+For bugs, include steps to reproduce the problem and describe what you expected to happen.
+
+## 🧭 Ideas for future improvements
+
+Possible next steps include richer typing statistics, personal-best records, configurable practice text, more language exercises, accessibility refinements, and additional game options.
+
+## 📄 License
+
+A license is not specified in this README. Check the repository for a `LICENSE` file before reusing or redistributing this project.
+
+---
+
+<p align="center">
+  <strong>Small daily practice. Better typing over time.</strong>
+  <br />
+  Made for learners who want to make every keystroke count.
+</p>

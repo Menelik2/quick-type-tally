@@ -79,12 +79,16 @@ export default function WordSprint({ initialTimeLimit = 60 }: WordSprintProps) {
     const value = e.target.value;
     if (isComplete) return;
 
-    if (!startTime && value.length === 1) {
+    if (!startTime && value.length > 0) {
       setStartTime(Date.now());
     }
 
     if (value.endsWith(' ') || value.endsWith('\n')) {
       const trimmed = value.trim();
+      if (!trimmed) {
+        setUserInput('');
+        return;
+      }
       if (trimmed === words[currentWordIndex]) {
         setCorrectWords(prev => prev + 1);
         setStreak(prev => {
@@ -109,13 +113,13 @@ export default function WordSprint({ initialTimeLimit = 60 }: WordSprintProps) {
     }
   };
 
-  const resetTest = useCallback((lv: Level = level) => {
+  const resetTest = useCallback((lv: Level = level, limit: number = timeLimit) => {
     setWords(getRandomWords(50, lv));
     setCurrentWordIndex(0);
     setUserInput('');
     setStartTime(null);
     setIsComplete(false);
-    setRemainingTime(timeLimit);
+    setRemainingTime(limit);
     setCorrectWords(0);
     setTotalTyped(0);
     setStreak(0);
@@ -127,13 +131,12 @@ export default function WordSprint({ initialTimeLimit = 60 }: WordSprintProps) {
 
   const changeTimeLimit = (newLimit: number) => {
     setTimeLimit(newLimit);
-    setRemainingTime(newLimit);
-    resetTest();
+    resetTest(level, newLimit);
   };
 
   const changeLevel = (lv: Level) => {
     setLevel(lv);
-    resetTest(lv);
+    resetTest(lv, timeLimit);
   };
 
   const accuracy = totalTyped > 0 ? Math.round((correctWords / Math.max(1, currentWordIndex)) * 100) : 100;

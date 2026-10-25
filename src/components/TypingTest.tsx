@@ -1,8 +1,7 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import {
   Keyboard, Zap, Rocket, Circle, Shield, Languages, Banana, Car, Code2, Swords,
-  Sparkles, Target, Trophy, ArrowUpRight, Activity, CheckCircle2, Command, Play,
-  ChevronRight, Gauge, Flame, Star, Search, SlidersHorizontal,
+  Sparkles, Target, Trophy, ArrowUpRight, Activity, CheckCircle2, ChevronRight, SlidersHorizontal,
 } from 'lucide-react';
 import ClassicMode from './games/ClassicMode';
 import WordSprint from './games/WordSprint';

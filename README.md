@@ -1,134 +1,163 @@
-# Yene Typing
+# Yene Typing ⌨️
 
-**Yene Typing** is a modern, interactive typing-practice web app designed to help users build typing speed, accuracy, and confidence through focused exercises and game-style challenges.
+<p align="center">
+  <strong>Build speed. Improve accuracy. Enjoy every keystroke.</strong>
+  <br />
+  An interactive typing-practice app with classic exercises, arcade-style challenges, Amharic typing, and code practice.
+</p>
 
-🌐 **Live app:** https://quick-type-tally.vercel.app/  
-📦 **Repository:** https://github.com/Menelik2/quick-type-tally
-
-## ✨ Features
-
-- **Multiple practice modes** — choose from Classic, Sprint, Falling Words, Bubbles, Defense, Car Race, Monkey, Amharic, Code Typer, and Ninja.
-- **Live typing feedback** — see correct and incorrect characters as you type, with the current word highlighted.
-- **Progress tracking during a session** — follow character progress, completion percentage, accuracy feedback, and streaks.
-- **Typing games** — practise through different challenge styles instead of relying on a single exercise.
-- **Amharic practice** — a dedicated mode for typing in Amharic.
-- **Code typing practice** — practise typing code snippets.
-- **Responsive interface** — designed for desktop and mobile screens.
-- **Fast development workflow** — built with Vite, React, and TypeScript.
-
-> The aim is to make regular typing practice clear, rewarding, and enjoyable.
-
-## 🕹️ Practice modes
-
-| Mode | Practice style |
-| --- | --- |
-| Classic | Focused, word-by-word typing practice |
-| Sprint | Short, speed-focused challenges |
-| Falling Words | Type words as they appear in the play area |
-| Bubbles | A playful word-typing challenge |
-| Defense | Type to defend against incoming challenges |
-| Car Race | Race-style typing practice |
-| Monkey | A game-inspired typing challenge |
-| Amharic | Practice typing Amharic text |
-| Code Typer | Type programming-oriented text |
-| Ninja | An action-style typing challenge |
-
-*Specific mechanics and available settings may vary as the project evolves.*
-
-## 🧰 Tech stack
-
-- **React 18** — user interface
-- **TypeScript** — typed application code
-- **Vite** — development server and production build
-- **Tailwind CSS** — styling and responsive layouts
-- **shadcn/ui and Radix UI** — interface components and accessibility primitives
-- **Lucide React** — icons
-- **React Router** — client-side navigation
-- **TanStack Query** — asynchronous state and data-fetching utilities
-- **Supabase client** — available for Supabase integration
-
-## 🚀 Run locally
-
-### Requirements
-
-- Node.js (use a current LTS release)
-- npm
-- Git
-
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/Menelik2/quick-type-tally.git
-
-# Open the project directory
-cd quick-type-tally
-
-# Install dependencies
-npm install
-
-# Start the local development server
-npm run dev
-```
-
-Vite will print a local URL in the terminal, commonly `http://localhost:5173`.
-
-### Available scripts
-
-| Command | Purpose |
-| --- | --- |
-| `npm run dev` | Start the development server |
-| `npm run build` | Create a production build |
-| `npm run build:dev` | Build using development mode |
-| `npm run preview` | Preview the production build locally |
-| `npm run lint` | Run ESLint |
-
-To verify a production build:
-
-```bash
-npm run build
-npm run preview
-```
-
-## 🌍 Deployment
-
-The project can be deployed to platforms that support Vite-based frontend applications, including **Vercel**.
-
-1. Import the GitHub repository into your deployment provider.
-2. Set the build command to `npm run build`.
-3. Set the output directory to `dist`.
-4. Configure any required environment variables in the provider's project settings.
-5. Deploy and verify the published app.
-
-For Vercel, automatic deployments can be enabled by connecting the repository. Review the deployment logs if a build fails.
-
-## ⚙️ Environment variables
-
-The app may use environment variables for optional services such as Supabase. Check the source code and any existing `.env.example` file to confirm the exact variable names required by your checkout.
-
-- Never commit API secrets, service-role keys, or private credentials.
-- For frontend variables, expose only values intended to be public.
-- Add environment variables through your local environment or deployment provider settings.
-
-## 🤝 Contributing
-
-Contributions and suggestions are welcome.
-
-1. Fork the repository.
-2. Create a feature branch.
-3. Make a focused change.
-4. Run `npm run lint` and `npm run build`.
-5. Open a pull request describing the change and how it was checked.
-
-## 🗺️ Roadmap ideas
-
-Potential improvements for future releases include richer practice statistics, personal bests, additional language exercises, accessibility refinements, and more configurable typing challenges.
-
-## 📄 License
-
-No license information is specified here yet. Check the repository for an existing license before redistributing or reusing the project.
+<p align="center">
+  <a href="https://quick-type-tally.vercel.app/"><strong>🚀 Open Yene Typing</strong></a>
+  ·
+  <a href="https://github.com/Menelik2/quick-type-tally/issues">Report an issue</a>
+  ·
+  <a href="https://github.com/Menelik2/quick-type-tally/pulls">Contribute</a>
+</p>
 
 ---
 
-**Practice a little. Improve every session.**  
-*Yene Typing — make every keystroke count.*
+## About
+
+**Yene Typing** helps learners practise typing in a focused, engaging environment. Choose a practice mode, type at your own pace, and use live feedback to notice mistakes and track progress through a session.
+
+The interface is designed to work across desktop and mobile screens, with a desktop-friendly practice layout and distinct game modes for different styles of practice.
+
+## ✨ Highlights
+
+- **10 practice modes** for focused exercises and game-inspired challenges.
+- **Live character feedback** to distinguish correct and incorrect input.
+- **Current-word highlighting** to help keep attention on the text being typed.
+- **Session progress indicators** with completion percentage and character progress.
+- **Streak and motivational feedback** to make practice feel rewarding.
+- **Amharic typing practice** alongside English-oriented exercises.
+- **Code Typer** for programming-text typing practice.
+- **Responsive UI** for desktop and mobile layouts.
+
+## 🎮 Choose a mode
+
+| Mode | What to expect |
+| --- | --- |
+| **Classic** | Focused word-by-word typing practice with live feedback |
+| **Sprint** | A speed-focused typing challenge |
+| **Falling Words** | Type words as they appear in the play area |
+| **Bubbles** | A playful word-typing challenge |
+| **Defense** | A defense-themed typing game |
+| **Car Race** | Race-inspired typing practice |
+| **Monkey** | A game-style typing challenge |
+| **Amharic** | Practise typing Amharic text |
+| **Code Typer** | Practise typing code-oriented text |
+| **Ninja** | An action-inspired typing challenge |
+
+*Game mechanics and options may change as the project develops.*
+
+## 🖥️ Preview the app
+
+Visit the live application to explore the current interface and available modes:
+
+**[quick-type-tally.vercel.app](https://quick-type-tally.vercel.app/)**
+
+## 🧱 Built with
+
+| Technology | Role |
+| --- | --- |
+| React 18 | UI components |
+| TypeScript | Typed application code |
+| Vite | Local development and production builds |
+| Tailwind CSS | Styling and responsive layout |
+| shadcn/ui + Radix UI | Reusable interface primitives |
+| Lucide React | Icons |
+| React Router | Client-side navigation |
+| TanStack Query | Data-fetching and asynchronous state utilities |
+| Supabase JS | Client library available for Supabase integration |
+
+## 🚀 Get started locally
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) — preferably a current LTS version
+- npm
+- Git
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/Menelik2/quick-type-tally.git
+cd quick-type-tally
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Start the development server
+
+```bash
+npm run dev
+```
+
+Open the local URL printed by Vite in your terminal (commonly `http://localhost:5173`).
+
+## 📜 Useful commands
+
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start the local development server |
+| `npm run build` | Create a production build |
+| `npm run build:dev` | Build using development mode |
+| `npm run preview` | Serve the production build locally |
+| `npm run lint` | Run ESLint |
+
+Before opening a pull request, it is recommended to run:
+
+```bash
+npm run lint
+npm run build
+```
+
+## 🌐 Deploy
+
+Yene Typing is a Vite frontend and can be deployed on platforms that support static frontend builds, including [Vercel](https://vercel.com/).
+
+Typical Vercel settings:
+
+- **Framework preset:** Vite
+- **Build command:** `npm run build`
+- **Output directory:** `dist`
+
+Connect the GitHub repository to enable automatic deployments. Configure any environment variables required by the code in the hosting provider's project settings.
+
+## 🔐 Environment and security notes
+
+- Check the repository for an `.env.example` file and inspect the code to confirm the exact environment variable names.
+- Do not commit local `.env` files, credentials, or private API keys.
+- Never expose Supabase service-role keys or other privileged secrets in browser code.
+- Only use public client-side configuration values in frontend environment variables.
+
+## 🤝 Contributing
+
+Suggestions, bug reports, and improvements are welcome.
+
+1. Fork this repository or create a feature branch.
+2. Keep changes focused and consistent with the existing code style.
+3. Run lint and build checks where possible.
+4. Open a pull request with a clear summary and testing notes.
+
+For bugs, include steps to reproduce the problem and describe what you expected to happen.
+
+## 🧭 Ideas for future improvements
+
+Possible next steps include richer typing statistics, personal-best records, configurable practice text, more language exercises, accessibility refinements, and additional game options.
+
+## 📄 License
+
+A license is not specified in this README. Check the repository for a `LICENSE` file before reusing or redistributing this project.
+
+---
+
+<p align="center">
+  <strong>Small daily practice. Better typing over time.</strong>
+  <br />
+  Made for learners who want to make every keystroke count.
+</p>

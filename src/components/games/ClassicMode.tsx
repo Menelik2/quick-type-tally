@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { RotateCcw, Eye, EyeOff, Keyboard, Activity, MousePointerClick } from 'lucide-react';
+import { RotateCcw, Eye, EyeOff, Keyboard, Activity, MousePointerClick, Sparkles, Flame } from 'lucide-react';
 import { useGameRestart } from './GameShell';
 import { LevelSelect, poolByLevel, type Level } from './levels';
 import { TEXT_ARENA_STYLE } from './arena';
@@ -250,14 +250,18 @@ export default function ClassicMode({ timeLimit: initialTimeLimit, monkeyMode: i
               const index = word.start + ci;
               const typed = index < userInput.length;
               const isCurrent = index === userInput.length;
-              let cls = 'relative rounded-sm transition-colors duration-75';
+              const wordActive = userInput.length >= word.start && userInput.length < word.start + word.text.trimEnd().length;
+              let cls = 'relative rounded-md transition-all duration-100';
               if (typed) {
                 cls +=
                   userInput[index] === char
                     ? ' text-emerald-600'
-                    : ' text-red-500 bg-red-500/10 underline decoration-red-400 decoration-2';
+                    : ' text-rose-500 bg-rose-500/10 underline decoration-rose-400 decoration-2';
+              } else if (isCurrent) {
+                cls += ' z-10 rounded-md bg-violet-600 px-[1px] text-white shadow-[0_0_18px_rgba(124,58,237,0.35)]';
               } else {
                 cls += size === 'large' ? ' text-slate-500' : ' text-slate-400';
+                if (wordActive) cls += ' bg-violet-100/80 text-slate-700';
               }
               return (
                 <span key={ci} className={cls}>
@@ -391,7 +395,7 @@ export default function ClassicMode({ timeLimit: initialTimeLimit, monkeyMode: i
       <Card className="border-0 shadow-sm">
         <CardContent className="p-6 lg:p-10 space-y-6" style={TEXT_ARENA_STYLE}>
           <div
-            className="relative rounded-xl bg-muted/40 p-6 lg:p-10 cursor-text ring-1 ring-transparent focus-within:ring-primary/40 transition"
+            className={`relative rounded-2xl bg-gradient-to-br from-white to-violet-50/70 p-6 lg:p-10 cursor-text ring-1 transition-all duration-200 ${startTime && !isComplete ? 'ring-violet-300 shadow-[0_12px_40px_-24px_rgba(124,58,237,0.45)]' : 'ring-slate-200/80 hover:ring-violet-200'}`}
             onMouseDown={(e) => {
               e.preventDefault();
               focusInput();
@@ -408,8 +412,18 @@ export default function ClassicMode({ timeLimit: initialTimeLimit, monkeyMode: i
               </div>
             )}
             {!isComplete && hiddenInput}
-            <div className="absolute top-2 right-3 text-xs text-muted-foreground tabular-nums">
-              {Math.round(progress)}%
+            <div className="absolute right-3 top-3 flex items-center gap-2 rounded-full border border-white/80 bg-white/90 px-3 py-1.5 text-[11px] font-bold text-violet-700 shadow-sm backdrop-blur">
+              <Sparkles className="h-3.5 w-3.5" /> {Math.round(progress)}%
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-violet-100 bg-violet-50/60 px-4 py-3">
+            <div className="flex items-center gap-2 text-xs text-slate-600">
+              <Sparkles className="h-4 w-4 text-violet-600" />
+              <span>{isComplete ? 'Nice work — every session builds your skill.' : stats.accuracy >= 98 && userInput.length > 0 ? 'Perfect accuracy! Keep that rhythm going.' : stats.streak >= 12 ? 'You’re on fire — keep your streak alive!' : userInput.length > 0 ? 'Great progress. Focus on the next character.' : 'Follow the highlighted word and keep a steady rhythm.'}</span>
+            </div>
+            <div className="flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-orange-600 ring-1 ring-orange-100">
+              <Flame className="h-3.5 w-3.5" /> {stats.streak} streak
             </div>
           </div>
 
